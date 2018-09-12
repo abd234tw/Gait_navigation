@@ -15,14 +15,13 @@ public class Drawl extends View {
     private Paint paint,paint2;//聲明畫筆
      float init=-200;
      float width,height;
-     int pen=10,c=0,path_c,length=10;
+     int pen=10,c,path_c,length=10;
      float d_x,d_y;
     ArrayList<Float> x=new ArrayList<>();
     ArrayList<Float> y=new ArrayList<>();
     ArrayList<Integer> turn=new ArrayList<>();
     ArrayList<Integer> branch=new ArrayList<>();
     int[] path;
-
 
     public Drawl(Context context) {
         super(context);
@@ -61,51 +60,56 @@ public class Drawl extends View {
         path=dp;
     }
     public void draw_path_c(int dpc){path_c=dpc;}
-
     //畫圖
     @Override
     protected void onDraw(Canvas canvas ) {
         super.onDraw(canvas);
-        width=canvas.getWidth()+init;
-        height=canvas.getHeight()+init;
-        int branch_c=branch.size();
-        do
-        {
-            if (turn.get(c)==0||turn.get(c)>=2||turn.get(c)==-2)
+
+            width=canvas.getWidth()+init;
+            height=canvas.getHeight()+init;
+            int branch_c=branch.size();
+            c=0;
+            do
             {
-                d_x=(x.get(c+1)-x.get(c))*length;
-                d_y=(y.get(c+1)-y.get(c))*length;
-                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                width=width+d_x;
-                height=height-d_y;
-            }
-            else
-            {
-                width=canvas.getWidth()+init+x.get(branch.get(branch_c-1))*length;
-                height=canvas.getHeight()+init-y.get(branch.get(branch_c-1))*length;
-//                d_x=(x.get(c+1)-x.get(branch.get(branch_c-1)))*length;
-//                d_y=(y.get(c+1)-y.get(branch.get(branch_c-1)))*length;
-                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                branch_c--;
-            }
-               c++;
-        }while(c<x.size()-1);
+                if (turn.get(c)==0||turn.get(c)>=2||turn.get(c)==-2)
+                {
+                    d_x=(x.get(c+1)-x.get(c))*length;
+                    d_y=(y.get(c+1)-y.get(c))*length;
+                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                    width=width+d_x;
+                    height=height-d_y;
+                }
+                else
+                {
+                    width=canvas.getWidth()+init+x.get(branch.get(branch_c-1))*length;
+                    height=canvas.getHeight()+init-y.get(branch.get(branch_c-1))*length;
+                    d_x=(x.get(c+1)-x.get(branch.get(branch_c-1)))*length;
+                    d_y=(y.get(c+1)-y.get(branch.get(branch_c-1)))*length;
+                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                    branch_c--;
+                }
+                c++;
+                if (c==x.size()-1)
+                    c++;
+            }while(c<x.size());
 
 
-        width=canvas.getWidth()+init+x.get(path[0])*length;
-        height=canvas.getHeight()+init-y.get(path[0])*length;
+            width=canvas.getWidth()+init+x.get(path[0])*length;
+            height=canvas.getHeight()+init-y.get(path[0])*length;
 
-        for (int i=1;i<path_c;i++)
-        {
-            if(path[i]!=-1)
+            for (int i=1;i<path_c;i++)
             {
-                d_x=(x.get(path[i])-x.get(path[i-1]))*length;
-                d_y=(y.get(path[i])-y.get(path[i-1]))*length;
-                canvas.drawLine(width,height,width+d_x,height-d_y,paint2);
-                width=width+d_x;
-                height=height-d_y;
+                if(path[i]!=-1)
+                {
+                    d_x=(x.get(path[i])-x.get(path[i-1]))*length;
+                    d_y=(y.get(path[i])-y.get(path[i-1]))*length;
+                    canvas.drawLine(width,height,width+d_x,height-d_y,paint2);
+                    width=width+d_x;
+                    height=height-d_y;
+                }
             }
-        }
+
+
 
 
 

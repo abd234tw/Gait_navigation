@@ -68,6 +68,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     Sensor stepDetector;
     float currentDegree;
     Drawl bDrawl;
+    DrawPath bDrawpath;
     Bundle bundle=new Bundle();
     //****************變數*********************
     ArrayList<String> get_start_floor=new ArrayList<>(),get_name=new ArrayList<String>(),user_get_name=new ArrayList<String>();
@@ -82,7 +83,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     int get_floor1=1,get_floor2=1,start_int,end_int,stepCount,getStepCount_before,requestCode=1,requestCode2=2,requestCode0=0,get_path_floor,user_get_floor,user_get_floor2,checkin_c=0,checkin_c2=0;
     int[] path=new int [100];
     int[] path2=new int[100];
-    int index=0, index2=0,path_c=0,path_c2=0;
+    int index=0, index2=0,path_c=0,path_c2=0,insert_c;
     double[][] dist = new double[100][100];
     double[][] dist2= new double[100][100];
     float[][] dir=new float[100][100];
@@ -596,84 +597,109 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                 } else{
                                     if (!up_down_floor) //不是上下樓
                                     {
+
+                                        if (start_int<end_int)
+                                        {
+                                            insert_c=1;
+                                        }else
+                                        {
+                                            insert_c=-1;
+                                        }
+
+
                                         user_get_floor=get_floor1;
-                                        get_like.add(path[index]+1+checkin_c,1);
-                                        user_get_name.add(path[index]+1+checkin_c,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
-                                        user_get_direction.add(path[index]+1+checkin_c,get_direction.get(path[index]));//方向跟目前的點一樣 因為在兩點之間
-                                        user_get_turn.add(path[index]+1+checkin_c,0);  //兩點間只有一條路 設 0
+                                        get_like.add(path[index]+insert_c+checkin_c,1);
+                                        user_get_name.add(path[index]+insert_c+checkin_c,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
+                                        user_get_direction.add(path[index]+insert_c+checkin_c,get_direction.get(path[index]));//方向跟目前的點一樣 因為在兩點之間
+                                        user_get_turn.add(path[index]+insert_c+checkin_c,0);  //兩點間只有一條路 設 0
 
                                         if(user_get_x.get(path[index])-user_get_x.get(path[index+1])!=0)
                                         {
                                             if ((user_get_x.get(path[index])<user_get_x.get(path[index+1])))   //下一點比較大 往大的走用加的
-                                                user_get_x.add(path[index]+1+checkin_c,  user_get_x.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             else if(user_get_x.get(path[index])>user_get_x.get(path[index+1]))  //下一點比較小 往小的走用減的
-                                                user_get_x.add(path[index]+1+checkin_c,  user_get_x.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                         }else   //等於零 表示同一個X
-                                            user_get_x.add(path[index]+1,  user_get_x.get(path[index]));
+                                            user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index]));
 
                                         if(user_get_y.get(path[index])-user_get_y.get(path[index+1])!=0)
                                         {
                                             if ((user_get_y.get(path[index])<user_get_y.get(path[index+1])))   //下一點比較大 往大的走用加的
-                                                user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             else if(user_get_y.get(path[index])>user_get_y.get(path[index+1]))  //下一點比較小 往小的走用減的
-                                                user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                         }else   //等於零 表示同一個X
-                                            user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index]));
+                                            user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index]));
                                         checkin_bl=true;
                                     }else//是上下樓
                                     {
+
                                         if (!start_again)    // 還沒上下樓
                                         {
+                                            if (path[index]<path[index+1])
+                                            {
+                                                insert_c=1;
+                                            }else
+                                            {
+                                                insert_c=-1;
+                                            }
                                             user_get_floor=get_floor1;
-                                            get_like.add(path[index]+1+checkin_c,1);
-                                            user_get_name.add(path[index]+1+checkin_c,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
-                                            user_get_direction.add(path[index]+1+checkin_c,get_direction.get(path[index]));//方向跟目前的點一樣 因為在兩點之間
-                                            user_get_turn.add(path[index]+1+checkin_c,0);  //兩點間只有一條路 設 0
+                                            get_like.add(path[index]+insert_c+checkin_c,1);
+                                            user_get_name.add(path[index]+insert_c+checkin_c,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
+                                            user_get_direction.add(path[index]+insert_c+checkin_c,get_direction.get(path[index]));//方向跟目前的點一樣 因為在兩點之間
+                                            user_get_turn.add(path[index]+insert_c+checkin_c,0);  //兩點間只有一條路 設 0
 
                                             if(user_get_x.get(path[index])-user_get_x.get(path[index+1])!=0)
                                             {
                                                 if ((user_get_x.get(path[index])<user_get_x.get(path[index+1])))   //下一點比較大 往大的走用加的
-                                                    user_get_x.add(path[index]+1+checkin_c,  user_get_x.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                                 else if(user_get_x.get(path[index])>user_get_x.get(path[index+1]))  //下一點比較小 往小的走用減的
-                                                    user_get_x.add(path[index]+1+checkin_c,  user_get_x.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             }else   //等於零 表示同一個X
-                                                user_get_x.add(path[index]+1+checkin_c,  user_get_x.get(path[index]));
+                                                user_get_x.add(path[index]+insert_c+checkin_c,  user_get_x.get(path[index]));
 
                                             if(user_get_y.get(path[index])-user_get_y.get(path[index+1])!=0)
                                             {
                                                 if ((user_get_y.get(path[index])<user_get_y.get(path[index+1])))   //下一點比較大 往大的走用加的
-                                                    user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                                 else if(user_get_y.get(path[index])>user_get_y.get(path[index+1]))  //下一點比較小 往小的走用減的
-                                                    user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             }else   //等於零 表示同一個X
-                                                user_get_y.add(path[index]+1+checkin_c,  user_get_y.get(path[index]));
+                                                user_get_y.add(path[index]+insert_c+checkin_c,  user_get_y.get(path[index]));
                                             checkin_bl=true;
                                             checkin_c++;
                                         }else
                                         {
+                                            if (start_int<end_int)
+                                            {
+                                                insert_c=1;
+                                            }else
+                                            {
+                                                insert_c=-1;
+                                            }
                                             user_get_floor2=get_floor2;
-                                            get_like2.add(path[index]+1+checkin_c,1);
-                                            user_get_name_2.add(path2[index2]+1+checkin_c2,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
-                                            user_get_direction_2.add(path2[index2]+1+checkin_c2,get_direction_2.get(path2[index2]));//方向跟目前的點一樣 因為在兩點之間
-                                            user_get_turn_2.add(path2[index2]+1+checkin_c2,0);  //兩點間只有一條路 設 0
+                                            get_like2.add(path[index2]+insert_c+checkin_c2,1);
+                                            user_get_name_2.add(path2[index2]+insert_c+checkin_c2,checkin_name_edt.getText().toString());   // 地點名稱       path[index]現在的點
+                                            user_get_direction_2.add(path2[index2]+insert_c+checkin_c2,get_direction_2.get(path2[index2]));//方向跟目前的點一樣 因為在兩點之間
+                                            user_get_turn_2.add(path2[index2]+insert_c+checkin_c2,0);  //兩點間只有一條路 設 0
 
                                             if(user_get_x_2.get(path2[index2])-user_get_x_2.get(path2[index2+1])!=0)
                                             {
                                                 if ((user_get_x_2.get(path2[index2])<user_get_x_2.get(path2[index2+1])))   //下一點比較大 往大的走用加的
-                                                    user_get_x_2.add(path2[index2]+1+checkin_c2,  user_get_x_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_x_2.add(path2[index2]+insert_c+checkin_c2,  user_get_x_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                                 else if(user_get_x_2.get(path2[index2])>user_get_x_2.get(path2[index2+1]))  //下一點比較小 往小的走用減的
-                                                    user_get_x_2.add(path2[index2]+1+checkin_c2,  user_get_x_2.get(path2[index2])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_x_2.add(path2[index2]+insert_c+checkin_c2,  user_get_x_2.get(path2[index2])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             }else   //等於零 表示同一個X
-                                                user_get_x_2.add(path2[index2]+1+checkin_c2,  user_get_x_2.get(path2[index2]));
+                                                user_get_x_2.add(path2[index2]+insert_c+checkin_c2,  user_get_x_2.get(path2[index2]));
 
                                             if(user_get_y_2.get(path2[index2])-user_get_y_2.get(path2[index2+1])!=0)
                                             {
                                                 if ((user_get_y_2.get(path2[index2])<user_get_y_2.get(path2[index2+1])))   //下一點比較大 往大的走用加的
-                                                    user_get_y_2.add(path2[index2]+1+checkin_c2,  user_get_y_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_y_2.add(path2[index2]+insert_c+checkin_c2,  user_get_y_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                                 else if(user_get_y_2.get(path2[index2])>user_get_y_2.get(path2[index2+1]))  //下一點比較小 往小的走用減的
-                                                    user_get_y_2.add(path2[index2]+1+checkin_c2,  user_get_y_2.get(path2[index2])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                    user_get_y_2.add(path2[index2]+insert_c+checkin_c2,  user_get_y_2.get(path2[index2])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             }else   //等於零 表示同一個X
-                                                user_get_y_2.add(path2[index2]+1+checkin_c2,  user_get_y_2.get(path2[index2]));
+                                                user_get_y_2.add(path2[index2]+insert_c+checkin_c2,  user_get_y_2.get(path2[index2]));
                                             checkin_c2++;
                                             checkin_bl2=true;
                                         }
@@ -706,7 +732,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     Toast.makeText(navigation.this,"請先選擇起點和目的地",Toast.LENGTH_SHORT).show();
                 }else{
 
-                    if (start_btn_bool==false){
+                    if (!start_btn_bool){
                         start_btn_bool = true;
                         scan_btn.setVisibility(View.INVISIBLE);//隱藏QRcode
                         voice_btn.setVisibility(View.INVISIBLE);//隱藏語音鍵
@@ -731,13 +757,17 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
                         start_dir=true;
                         //results.setText(results.getText()+" "+get_branch.size()+"***");
+
                         drawmap();
+
+
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
 
                                 if (!up_down_floor)  //不是上下樓 (同樓層)
                                 {
+
                                     if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
                                         start_navigation=true;
 
@@ -994,6 +1024,12 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         user_get_name.add(String.valueOf(ds.child("name").getValue()));
                     }
                     get_name.add("請選擇以上地點");
+                    for (int i=0;i<get_turn.size();i++)
+                    {
+                        if (get_turn.get(i)==2)
+                            get_branch.add(i);
+                    }
+                    //drawmap();
                 }
                 if (qr)
                 {
@@ -1045,6 +1081,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         user_get_name_2.add(String.valueOf(ds.child("name").getValue()));
                     }
                     get_name_2.add("請選擇以上地點");
+
                 }
             }
             @Override
@@ -1180,7 +1217,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             else if(get_turn.get(x)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
             {
                 branch[b++]=x;  //岔路點存起來
-                get_branch.add(x);
                 y=x+1;
                 dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
                 dist[y][x]=dist[x][y];//雙向
@@ -1544,17 +1580,31 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
     public void drawmap()
     {
-        LinearLayout layout=findViewById(R.id.d_map);
-        bDrawl=new  Drawl(this);
-        bDrawl.draw_x(get_x);
-        bDrawl.draw_y(get_y);
-        bDrawl.draw_branch(get_branch);
-        bDrawl.draw_turn(get_turn);
-        bDrawl.draw_path(path);
-        bDrawl.draw_path_c(path_c);
-        layout.addView(bDrawl);
-    }
+        if(!start_navigation)
+        {
+            LinearLayout layout=findViewById(R.id.d_map);
+            bDrawl=new  Drawl(this);
+            bDrawl.draw_x(get_x);
+            bDrawl.draw_y(get_y);
+            bDrawl.draw_branch(get_branch);
+            bDrawl.draw_turn(get_turn);
+            bDrawl.draw_path(path);
+            bDrawl.draw_path_c(path_c);
+            layout.addView(bDrawl);
+        }
 
+    }
+   /* public void drawpath()
+    {
+        LinearLayout layout=findViewById(R.id.d_map);
+        bDrawpath=new DrawPath(this);
+        bDrawpath.draw_x(get_x);
+        bDrawpath.draw_y(get_y);
+        bDrawpath.draw_path(path);
+        bDrawpath.draw_path_c(path_c);
+        layout.addView(bDrawpath);
+    }
+*/
 
 
     //QRcode 返回  & arrive返回
