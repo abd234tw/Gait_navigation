@@ -13,10 +13,10 @@ import java.util.ArrayList;
 
 public class Drawl extends View {
     private Paint paint,paint2;//聲明畫筆
-     float init=-200;
-     float width,height;
-     int pen=10,c=0,path_c,length=10;
-     float d_x,d_y;
+    float init=-200;
+    float width,height;
+    int pen=10,c=0,path_c,length=10;
+    float d_x,d_y;
     ArrayList<Float> x=new ArrayList<>();
     ArrayList<Float> y=new ArrayList<>();
     ArrayList<Integer> turn=new ArrayList<>();
