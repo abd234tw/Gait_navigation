@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "419342626849",
+    "firebase_url": "https://gait-indoor-navigation.firebaseio.com",
+    "project_id": "gait-indoor-navigation",
+    "storage_bucket": "gait-indoor-navigation.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419342626849:android:1464fecd1544a98b",
+        "android_client_info": {
+          "package_name": "com.example.allen.gait_navigation"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419342626849-j55jaal6oomaoekt0lkf1fukjm6kphvb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.allen.gait_navigation",
+            "certificate_hash": "02b8d0f3f9113730549890e1134c6ea73b1004a7"
+          }
+        },
+        {
+          "client_id": "419342626849-jr65tjvachuk2er7pl8c6i8kve1q8fqd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaF3mHlmLXtZwg9rTdPixQSocnrZkNJ1k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419342626849-jr65tjvachuk2er7pl8c6i8kve1q8fqd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419342626849:android:7687525cf424c517",
+        "android_client_info": {
+          "package_name": "com.example.user.project8"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419342626849-jb14d9s023nkjc7qhvvmu39d8lubhh93.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.user.project8",
+            "certificate_hash": "d050a60151c8d404dd05505346bf267d9150c731"
+          }
+        },
+        {
+          "client_id": "419342626849-jr65tjvachuk2er7pl8c6i8kve1q8fqd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaF3mHlmLXtZwg9rTdPixQSocnrZkNJ1k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419342626849-jr65tjvachuk2er7pl8c6i8kve1q8fqd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

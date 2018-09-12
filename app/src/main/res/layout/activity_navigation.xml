@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".navigation"
+    android:background="@color/colorWhite">
+
+    <ImageView
+        android:id="@+id/img_arrow"
+        android:layout_width="42dp"
+        android:layout_height="46dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="13dp"
+        android:layout_marginTop="181dp"
+        app:srcCompat="@drawable/arrow" />
+
+    <TextView
+        android:id="@+id/tv-degree"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="159dp"
+        android:gravity="center"
+        android:text="請將手機正前方對準箭頭"
+        android:textSize="20dp" />
+
+    <TextView
+        android:id="@+id/results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/Choice_place1_btn"
+        android:layout_marginBottom="152dp"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:text="select  place" />
+
+    <Button
+        android:id="@+id/start_nav_btn"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/round_button"
+        android:textColor="#00a8a8"
+        android:textSize="20sp"
+        android:text="開始" />
+
+    <Button
+        android:id="@+id/voice_btn"
+        android:background="@drawable/round_botton_black"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="90dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:text="語音" />
+
+    <Button
+        android:id="@+id/scan_btn"
+        android:background="@drawable/round_botton_black"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:text="QR" />
+
+    <Button
+        android:id="@+id/checkin_btn"
+        android:background="@drawable/round_botton_black"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:layout_alignRight="@+id/start_nav_btn"
+        android:layout_marginRight="130dp"
+        android:textSize="16dp"
+        android:text="打卡"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/Choice_place1_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Choice_start_btn"
+        android:layout_alignRight="@+id/Choice_floor1_btn"
+        android:layout_marginRight="100dp"
+        android:text="選擇地點" />
+    <Button
+        android:id="@+id/Choice_place2_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Choice_start_btn"
+        android:layout_marginTop="65dp"
+        android:layout_alignRight="@+id/Choice_floor2_btn"
+        android:layout_marginRight="100dp"
+        android:text="選擇地點" />
+    <Button
+        android:id="@+id/Choice_floor1_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Choice_start_btn"
+        android:layout_centerHorizontal="true"
+        android:text="選擇樓層" />
+    <Button
+        android:id="@+id/Choice_floor2_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Choice_start_btn"
+        android:layout_marginTop="65dp"
+        android:layout_centerHorizontal="true"
+        android:text="選擇樓層" />
+    <Button
+        android:id="@+id/Choice_start_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/Choice_end_btn"
+        android:layout_marginTop="24dp"
+        android:text="選擇起點" />
+    <Button
+        android:id="@+id/Choice_end_btn"
+        android:background="@drawable/btn_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/Choice_start_btn"
+        android:layout_marginTop="65dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="-141dp"
+        android:layout_marginEnd="36dp"
+        android:text="選擇目的地" />
+
+    <Button
+        android:id="@+id/start_again_btn"
+        android:background="@drawable/round_botton_black"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp"
+        android:layout_alignLeft="@+id/start_nav_btn"
+        android:layout_marginLeft="130dp"
+        android:text="已上\n下樓"
+        android:visibility="invisible"/>
+
+    <LinearLayout
+        android:id="@+id/d_map"
+        android:layout_width="385dp"
+        android:layout_height="198dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal"></LinearLayout>
+
+
+</RelativeLayout>
