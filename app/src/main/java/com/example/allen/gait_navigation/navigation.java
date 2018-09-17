@@ -1584,16 +1584,21 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl.draw_turn(get_turn);
             bDrawl.draw_path(path);
             bDrawl.draw_path_c(path_c);
-            layout.addView(bDrawl);
-
             for (int i=0;i<3;i++)
             {
                 Button newbtn= new Button(this);
-                newbtn.setText(i);
+                newbtn.setBackground(this.getResources().getDrawable(R.drawable.round_button));
+                newbtn.setText(String.valueOf(i));
                 newbtn.setX(50+i*10);
                 newbtn.setY(50);
-                layout.addView(newbtn);
+                layout.addView(newbtn,100,100);
             }
+
+            layout.addView(bDrawl);
+
+
+
+
         }
 
     }
