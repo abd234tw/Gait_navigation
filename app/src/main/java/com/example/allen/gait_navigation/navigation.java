@@ -79,7 +79,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             user_get_x=new ArrayList<Float>(),user_get_y=new ArrayList<Float>(),user_get_direction=new ArrayList<Float>();
     ArrayList<Float> get_x_2=new ArrayList<Float>(),get_y_2=new ArrayList<Float>(),get_direction_2=new ArrayList<Float>(),
             user_get_x_2=new ArrayList<Float>(),user_get_y_2=new ArrayList<Float>(),user_get_direction_2=new ArrayList<Float>();
-    double distance=0,stepDistance=0.6,Walking_distance=0;
+    double distance=0,stepDistance=0.6,Walking_distance=0,totalstep=0;
     int get_floor1=1,get_floor2=1,start_int,end_int,stepCount,getStepCount_before,requestCode=1,requestCode2=2,requestCode0=0,get_path_floor,user_get_floor,user_get_floor2,checkin_c=0,checkin_c2=0;
     int[] path=new int [100];
     int[] path2=new int[100];
@@ -748,10 +748,12 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                             up_down_floor=true;
                             best_path();
                             best_path_floor();
+                            GetStepCount();
                         }else
                         {
                             up_down_floor=false;
                             best_path();
+                            GetStepCount();
                         }
 
 
@@ -920,7 +922,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     //實際距離、行走距離、步數、前步數
     private void layout() {
         //test.setText("步數: "+String.valueOf(getStepCount_before) +" "+String.valueOf(stepCount)+"剩餘距離: "+String.format("%.2f",distance)+" 已走距離: "+String.format("%.2f",Walking_distance));
-        test.setText("目前步數: "+String.valueOf(stepCount-getStepCount_before)+" 目標步數: "+Math.round(distance/stepDistance));
+        test.setText("目前步數: "+String.valueOf(stepCount-getStepCount_before)+" 離下一點步數: "+Math.round(distance/stepDistance)+"總步數"+Math.round(totalstep));
         if(path[index]==get_path_floor&&!start_again)
         {
             if (get_floor1>get_floor2)
@@ -1606,6 +1608,14 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     }
 */
 
+   public  void GetStepCount()
+   {
+       for (int i=0;i<path_c;i++)
+       {
+           if (i!=path_c-1)
+           totalstep=totalstep+dist[path[i]][path[i+1]]/stepDistance;
+       }
+   }
 
     //QRcode 返回  & arrive返回
     @Override
