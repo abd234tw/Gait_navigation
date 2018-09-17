@@ -12,7 +12,7 @@ import android.view.View;
 import java.util.ArrayList;
 
 public class Drawl extends View {
-    private Paint paint,paint2;//聲明畫筆
+    private Paint paint,paint2,paint3,paint4;//聲明畫筆
      float init=-200;
      float width,height;
      int pen=10,c,path_c,length=10;
@@ -27,14 +27,24 @@ public class Drawl extends View {
         super(context);
         paint=new Paint(Paint.DITHER_FLAG);//創建一個畫筆
         paint.setStyle(Paint.Style.STROKE);//設置非填充
-        paint.setStrokeWidth(pen);//筆寬5圖元
+        paint.setStrokeWidth(pen*5);//筆寬5圖元
         paint.setColor(Color.RED);//設置為紅筆
         paint.setAntiAlias(true);//鋸齒不顯示
         paint2=new Paint(Paint.DITHER_FLAG);//創建一個畫筆
         paint2.setStyle(Paint.Style.STROKE);//設置非填充
         paint2.setStrokeWidth(pen/2);//筆寬5圖元
-        paint2.setColor(Color.BLUE);//設置為紅筆
+        paint2.setColor(Color.BLUE);//設置為藍筆
         paint2.setAntiAlias(true);//鋸齒不顯示
+        paint3=new Paint(Paint.DITHER_FLAG);//創建一個畫筆
+       // paint3.setStyle(Paint.Style.STROKE);//設置非填充
+        paint3.setStrokeWidth(pen);//筆寬5圖元
+        paint3.setColor(Color.YELLOW);//設置為黃筆
+        paint3.setAntiAlias(true);//鋸齒不顯示
+        paint4=new Paint(Paint.UNDERLINE_TEXT_FLAG);//創建一個畫筆
+        // paint4..setStyle(Paint.Style.STROKE);//設置非填充
+        paint4.setColor(Color.BLACK);//設置為黑筆
+        paint4.setAntiAlias(true);//鋸齒不顯示
+        paint4.setTextSize(40);
     }
 
 
@@ -99,14 +109,23 @@ public class Drawl extends View {
 
             for (int i=1;i<path_c;i++)
             {
-                if(path[i]!=-1)
+
+
+                d_x=(x.get(path[i])-x.get(path[i-1]))*length;
+                d_y=(y.get(path[i])-y.get(path[i-1]))*length;
+                if (i==1)
                 {
-                    d_x=(x.get(path[i])-x.get(path[i-1]))*length;
-                    d_y=(y.get(path[i])-y.get(path[i-1]))*length;
-                    canvas.drawLine(width,height,width+d_x,height-d_y,paint2);
-                    width=width+d_x;
-                    height=height-d_y;
+                    canvas.drawCircle(width,height,pen*4,paint3);
+                    canvas.drawText("起點",width,height,paint4);
+                }else if (i==path_c-1)
+                {
+                    canvas.drawCircle(width+d_x,height-d_y,pen*4,paint3);
+                    canvas.drawText("終點",width+d_x,height-d_y,paint4);
                 }
+                    canvas.drawLine(width,height,width+d_x,height-d_y,paint2);
+                width=width+d_x;
+                height=height-d_y;
+
             }
 
 
@@ -114,6 +133,8 @@ public class Drawl extends View {
 
 
     }
+
+
 
 
 }
