@@ -69,7 +69,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     Sensor stepDetector;
     float currentDegree;
     Drawl bDrawl;
-    DrawPath bDrawpath;
     Bundle bundle=new Bundle();
     //****************變數*********************
     ArrayList<String> get_start_floor=new ArrayList<>(),get_name=new ArrayList<String>(),user_get_name=new ArrayList<String>();
@@ -1573,10 +1572,11 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
     public void drawmap()
     {
+
         if(!start_navigation)
         {
             LinearLayout layout=findViewById(R.id.d_map);
-
+            layout.setBackgroundColor(Color.BLACK);
             bDrawl=new  Drawl(this);
             bDrawl.draw_x(get_x);
             bDrawl.draw_y(get_y);
@@ -1584,7 +1584,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl.draw_turn(get_turn);
             bDrawl.draw_path(path);
             bDrawl.draw_path_c(path_c);
-            for (int i=0;i<3;i++)
+            bDrawl.draw_name(get_name);
+           /* for (int i=0;i<3;i++)
             {
                 Button newbtn= new Button(this);
                 newbtn.setBackground(this.getResources().getDrawable(R.drawable.round_button));
@@ -1592,27 +1593,10 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 newbtn.setX(50+i*10);
                 newbtn.setY(50);
                 layout.addView(newbtn,100,100);
-            }
-
+            }*/
             layout.addView(bDrawl);
-
-
-
-
         }
-
     }
-   /* public void drawpath()
-    {
-        LinearLayout layout=findViewById(R.id.d_map);
-        bDrawpath=new DrawPath(this);
-        bDrawpath.draw_x(get_x);
-        bDrawpath.draw_y(get_y);
-        bDrawpath.draw_path(path);
-        bDrawpath.draw_path_c(path_c);
-        layout.addView(bDrawpath);
-    }
-*/
 
    public  void GetStepCount()
    {
@@ -1686,13 +1670,13 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     }
                 }
                 // 判斷有沒有講錯la
-                if (isError0==true && isError1==true){
+                if (isError0 && isError1){
                     error_str=array_voice[0]+" and "+array_voice[1];
                     Toast.makeText(this, "Cannot find "+error_str,Toast.LENGTH_SHORT).show();
-                }else if(isError0==true && isError1==false){
+                }else if(isError0 && !isError1){
                     error_str=array_voice[0];
                     Toast.makeText(this, "Cannot find "+error_str,Toast.LENGTH_SHORT).show();
-                }else if(isError0==false && isError1==true){
+                }else if(!isError0 && isError1){
                     error_str=array_voice[1];
                     Toast.makeText(this, "Cannot find "+error_str,Toast.LENGTH_SHORT).show();
                 }
