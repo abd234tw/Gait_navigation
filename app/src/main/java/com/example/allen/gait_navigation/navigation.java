@@ -766,13 +766,16 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                     if (start_navigation&&path[0]!=path[1])  //路徑跟下個不一樣 開始
                                     {
                                         distance = dist[path[index]][path[index+1]];
+
                                         if (distance - Walking_distance > 2) {
                                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                         } else {
                                             index++;
                                             getStepCount_before = stepCount;
                                             Walking_distance = 0;
+
                                         }
+
                                     }
                                     if (path[index]==end_int||path[0]==path[1]) //路徑跟下個一樣 結束
                                     {
@@ -817,6 +820,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                                 index++;
                                                 getStepCount_before = stepCount;
                                                 Walking_distance = 0;
+
                                             }
                                         }
                                     }
@@ -1576,7 +1580,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         if(!start_navigation)
         {
             LinearLayout layout=findViewById(R.id.d_map);
-            layout.setBackgroundColor(Color.BLACK);
+            //layout.setBackgroundColor(Color.BLACK);
             bDrawl=new  Drawl(this);
             bDrawl.draw_x(get_x);
             bDrawl.draw_y(get_y);
@@ -1585,6 +1589,11 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl.draw_path(path);
             bDrawl.draw_path_c(path_c);
             bDrawl.draw_name(get_name);
+          //  bDrawl.draw_stepdis(Float.valueOf(String.valueOf(stepDistance)));
+           // bDrawl.draw_step_c(stepCount);
+         //   bDrawl.draw_step_cb(getStepCount_before);
+          //  bDrawl.draw_index(index);
+
            /* for (int i=0;i<3;i++)
             {
                 Button newbtn= new Button(this);
@@ -1594,7 +1603,10 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 newbtn.setY(50);
                 layout.addView(newbtn,100,100);
             }*/
+
             layout.addView(bDrawl);
+
+
         }
     }
 

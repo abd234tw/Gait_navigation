@@ -13,9 +13,10 @@ import android.view.SurfaceView;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Currency;
 
-public class Drawl extends View {
-    private Paint paint,paint2,paint3,paint4,paint5,paint6;//聲明畫筆
+public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
+    private Paint paint,paint2,paint3,paint4,paint5,paint6,paint7;//聲明畫筆
      float init=-200;
      float width,height;
      int pen=10,c,path_c,length=15;
@@ -27,11 +28,37 @@ public class Drawl extends View {
     ArrayList<String>name=new ArrayList<>();
     int[] path;
 
+    //------------------
+    private SurfaceHolder holder;
+    private RefreshThread renderThread;
+    private boolean isDraw = false;// 控制绘制的开关
+    float stepdis,currentX,currentY;
+    int stepcount,index,stepcountb
+            ;
+    @Override
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
+        isDraw = true;
+        renderThread.start();
+    }
 
+    @Override
+    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        isDraw = false;
+    }
 
 
     public Drawl(Context context) {
         super(context);
+        //----------
+        holder = this.getHolder();
+        holder.addCallback(this);
+        renderThread = new RefreshThread(holder);
+        //-------
         paint=new Paint(Paint.DITHER_FLAG);//創建一個畫筆    地圖
         paint.setStyle(Paint.Style.STROKE);//設置非填充
         paint.setStrokeWidth(pen*7);//筆寬
@@ -65,6 +92,11 @@ public class Drawl extends View {
         paint6.setAntiAlias(true);//鋸齒不顯示
         paint6.setTextSize(25);//字體大小
 
+        paint7=new Paint(Paint.DITHER_FLAG);//創建一個畫筆
+        paint7.setStrokeWidth(pen);//筆寬
+        paint7.setColor(Color.YELLOW);//設置為黃筆
+        paint7.setAntiAlias(true);//鋸齒不顯示
+
 
     }
 
@@ -92,8 +124,126 @@ public class Drawl extends View {
     }
     public void draw_path_c(int dpc){path_c=dpc;}
     public void draw_name(ArrayList<String> dn){name=dn;}
+    public void draw_stepdis(float dsd){stepdis=dsd;}
+    public void draw_step_c(int dsc){stepcount=dsc;}
+    public void draw_index(int di){index=di;}
+    public void draw_step_cb(int dscb){stepcountb=dscb;}
+
+    class RefreshThread extends Thread {
+        private SurfaceHolder holder;
+        public RefreshThread(SurfaceHolder holder) {
+            this.holder = holder;
+            isDraw = true;
+        }
+
+        public void onDraw() {
+            try {
+                synchronized (holder) {
+                    Canvas canvas = holder.lockCanvas();
+                    // TODO: consider storing these as member variables to reduce
+
+
+                   /*if ((x.get(path[index])<x.get(path[index+1])))   //下一點比較大 往大的走用加的
+                        currentX=canvas.getWidth()+init+x.get(path[index])*length;//+(stepcount-stepcountb )*stepdis*length;
+                    else if(x.get(path[index])>x.get(path[index+1]))  //下一點比較小 往小的走用減的
+                        currentX=canvas.getWidth()+init+x.get(path[index])*length;//-(stepcount-stepcountb)*stepdis*length;
+                    if ((y.get(path[index])<y.get(path[index+1])))   //下一點比較大 往大的走用加的
+                        currentY=canvas.getHeight()+init+y.get(path[index])*length;//-(stepcount-stepcountb)*stepdis*length;
+                    else if(y.get(path[index])>y.get(path[index+1]))  //下一點比較小 往小的走用減的
+                        currentY=canvas.getHeight()+init+y.get(path[index])*length;//+(stepcount-stepcountb)*stepdis*length;*/
+
+                    canvas.drawColor(Color.BLACK);
+                    //---------------
+                    width=canvas.getWidth()+init;
+                    height=canvas.getHeight()+init;
+                    int branch_c=branch.size();
+                    c=0;
+                    do                              //畫地圖
+                    {
+                        if (turn.get(c)==0||turn.get(c)>=2||turn.get(c)==-2)
+                        {
+                            d_x=(x.get(c+1)-x.get(c))*length;
+                            d_y=(y.get(c+1)-y.get(c))*length;
+                            canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            width=width+d_x;
+                            height=height-d_y;
+                        }
+                        else
+                        {
+                            width=canvas.getWidth()+init+x.get(branch.get(branch_c-1))*length;
+                            height=canvas.getHeight()+init-y.get(branch.get(branch_c-1))*length;
+                            d_x=(x.get(c+1)-x.get(branch.get(branch_c-1)))*length;
+                            d_y=(y.get(c+1)-y.get(branch.get(branch_c-1)))*length;
+                            canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            branch_c--;
+                        }
+                        c++;
+                        if (c==x.size()-1)
+                            c++;
+                    }while(c<x.size());
+
+
+                    width=canvas.getWidth()+init+x.get(path[0])*length;
+                    height=canvas.getHeight()+init-y.get(path[0])*length;
+
+                    for (int i=1;i<path_c;i++) {
+                        d_x = (x.get(path[i]) - x.get(path[i - 1])) * length;
+                        d_y = (y.get(path[i]) - y.get(path[i - 1])) * length;
+                        if (i == 1) {
+                            canvas.drawCircle(width, height, pen * 3, paint3);//起點
+                            canvas.drawText(name.get(path[i - 1]), width, height, paint4);
+                            canvas.drawCircle(width + d_x, height - d_y, pen * 2, paint5);//其他點
+                            canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint6);
+                        } else if (i == path_c - 1) {
+                            canvas.drawCircle(width + d_x, height - d_y, pen * 3, paint3);//終點
+                            canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint4);
+                        } else {
+                            canvas.drawCircle(width + d_x, height - d_y, pen * 2, paint5);//其他點
+                            canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint6);
+                        }
+                        canvas.drawLine(width, height, width + d_x, height - d_y, paint2);//路徑
+                        width = width + d_x;
+                        height = height - d_y;
+
+                    }
+
+                    //---------------
+
+                    currentX=canvas.getWidth()+init+x.get(path[index])*length;
+                    currentY=canvas.getHeight()+init-y.get(path[index])*length;
+                   /* if (path[index]!=path[path_c-1])
+                        index++;
+                    else
+                        index=0;*/
+
+                    canvas.drawCircle(currentX, currentY, pen*2, paint7);
+
+
+
+                    holder.unlockCanvasAndPost(canvas);//结束锁定画图，并提交改变。
+                    Thread.sleep(1000);//睡眠时间为1秒
+
+
+
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void run() {
+            while (isDraw) {
+                onDraw();
+            }
+        }
+    }
+
+
     //畫圖
-    @Override
+   /* @Override
     protected void onDraw(Canvas canvas ) {
         super.onDraw(canvas);
             width=canvas.getWidth()+init;
@@ -148,7 +298,8 @@ public class Drawl extends View {
                 height = height - d_y;
 
             }
-    }
+
+    }*/
 
 
 
