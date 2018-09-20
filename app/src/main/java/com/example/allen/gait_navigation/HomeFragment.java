@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
 
-    private CardView add_new_map_card,reset_card,navigation_card;
+    private CardView add_new_map_card,reset_card,navigation_card,navigation_outdoor;
     Intent intent;
     //    Button getdata_btn,navigation_btn,reset_btn;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -51,7 +51,7 @@ public class HomeFragment extends Fragment {
         add_new_map_card = view.findViewById(R.id.add_new_map_card);
         reset_card = view.findViewById(R.id.reset_card);
         navigation_card = view.findViewById(R.id.navigation_card);
-
+        navigation_outdoor=view.findViewById(R.id.navigation_outdoor);
         add_new_map_card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +68,13 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        /*navigation_outdoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(),navigation_outdoor.class);
+                startActivity(intent);
+            }
+        });*/
 //        getdata_btn.setOnClickListener(new Button.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
