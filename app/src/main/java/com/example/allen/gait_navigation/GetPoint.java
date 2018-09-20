@@ -52,7 +52,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     String getPlace,getFloor,getName,get_X,get_Y,dir;
     //下拉式選單
-    Spinner building_sp,floor_sp;
+    Spinner floor_sp;//,building_sp;
     String[] item_name = {"工程一館","工程二館","工程三館","工程四館","工程五館"};
     String[] item_name2 = {"1","2","3","4","5","6","7","8","9","10"};
 
@@ -93,7 +93,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         mAdd_btn = findViewById(R.id.mAdd_btn);
         mRemove_btn = findViewById(R.id.mRemove_btn);
         et_Name = findViewById(R.id.et_Name);
-        building_sp = findViewById(R.id.building_sp);
+       // building_sp = findViewById(R.id.building_sp);
         floor_sp = findViewById(R.id.floor_sp);
         //取得步長
         get_distance_btn.setOnClickListener(new Button.OnClickListener() {
@@ -137,7 +137,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         });
         //下拉式選單
         spinner_adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name);
-        building_sp.setAdapter(spinner_adapter);
+       /* building_sp.setAdapter(spinner_adapter);
         building_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -147,7 +147,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
-        });
+        });*/
         spinner_adapter2 = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name2);
         floor_sp.setAdapter(spinner_adapter2);
         floor_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

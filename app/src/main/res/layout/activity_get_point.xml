@@ -98,14 +98,14 @@
             android:orientation="vertical" />
     </ScrollView>
 
-    <Spinner
+    <!--<Spinner
         android:id="@+id/building_sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/step_view"
         android:layout_marginStart="-60dp"
         android:layout_alignBottom="@+id/et_place"
-        android:layout_marginBottom="-40dp" />
+        android:layout_marginBottom="-40dp" /> -->
 
     <Spinner
         android:id="@+id/floor_sp"
