@@ -13,17 +13,21 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="google.com"/>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="google.com"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
         <activity android:name=".GetPoint" />
@@ -32,10 +36,11 @@
             android:screenOrientation="portrait" />
         <activity android:name=".arrive" />
         <activity android:name=".QRcode" />
-        <activity android:name=".StartActivity"/>
+        <activity android:name=".StartActivity" />
         <activity
             android:name=".RegisterActivity"
-            android:parentActivityName=".StartActivity"/>
+            android:parentActivityName=".StartActivity" />
+        <activity android:name=".googlemap"></activity>
     </application>
 
 </manifest>

@@ -23,10 +23,11 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    implementation 'com.google.firebase:firebase-auth:11.8.0'
-    implementation 'com.google.firebase:firebase-database:11.8.0'
-    compile 'com.google.android.gms:play-services-auth:11.8.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'  //1.1.2改 1.1.3
+    implementation 'com.google.firebase:firebase-auth:16.0.3'//11.8.0改16.0.3
+    implementation 'com.google.firebase:firebase-database:16.0.2'//11.8.0改  16.0.2
+    implementation 'com.google.android.gms:play-services-auth:16.0.0' //11.8.0改  16.0.0
+    implementation 'com.google.firebase:firebase-messaging:17.3.1'//新加的  解決   FirebaseInstanceId
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -34,9 +35,10 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     implementation files('libs/annotation-4.7.0-javadoc.jar')
     implementation files('libs/glide-full-4.7.0.jar')
-
+    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
     //List iTem Library
-    compile 'com.lucasurbas:listitemview:1.1.1'
+    implementation 'com.lucasurbas:listitemview:1.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

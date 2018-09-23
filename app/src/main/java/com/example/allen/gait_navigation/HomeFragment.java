@@ -68,13 +68,13 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        /*navigation_outdoor.setOnClickListener(new View.OnClickListener() {
+        navigation_outdoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(),navigation_outdoor.class);
+                Intent intent = new Intent(getContext(),googlemap.class);
                 startActivity(intent);
             }
-        });*/
+        });
 //        getdata_btn.setOnClickListener(new Button.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
