@@ -90,7 +90,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     float[][] dir2=new float[100][100];
     String[] msg;
     float Current_direction;
-    Boolean start_navigation=false,start_dir=false,checkin_bl=false,up_down_floor=false,start_again=false,path_not_finish=true,checkin_bl2=false,qr=false;
+    Boolean set=false,start_navigation=false,start_dir=false,checkin_bl=false,up_down_floor=false,start_again=false,path_not_finish=true,checkin_bl2=false,qr=false;
     Timer timer;
     //***************下拉選單*******************
     Spinner spinner_start,spinner_end;
@@ -752,7 +752,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                             GetStepCount();
                         }
                         start_dir=true;
-                        drawmap();
+                        set=true;
+                        //drawmap();
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
@@ -1146,8 +1147,140 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             }
 
         }else if (event.sensor.getType()==Sensor.TYPE_STEP_DETECTOR) {
+            if (set)
+            {
+                if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
+                    start_navigation=true;
+                set=false;
+            }
             if (start_navigation) {
                 stepCount += event.values[0];
+                drawmap();
+                if (!up_down_floor)  //不是上下樓 (同樓層)
+                {
+                    if (path[0]!=path[1])  //路徑跟下個不一樣 開始
+                    {
+                        distance = dist[path[index]][path[index+1]];
+
+                        if (distance - Walking_distance > 2) {
+                            Walking_distance = (stepCount - getStepCount_before) * stepDistance;
+                        } else {
+                            index++;
+                            getStepCount_before = stepCount;
+                            Walking_distance = 0;
+                        }
+                    }
+                    if (path[index]==end_int||path[0]==path[1]) //路徑跟下個一樣 結束
+                    {
+                        start_navigation=false;
+                        start_dir=false;
+                        Intent intent=new Intent(navigation.this,arrive.class);
+                        int size=user_get_name.size();
+                        float[] user_x=new float[size],user_y=new float[size],user_direction=new float[size];
+                        for(int i=0; i<size; i++){
+                            user_x[i] = user_get_x.get(i);
+                            user_y[i] = user_get_y.get(i);
+                            user_direction[i] = user_get_direction.get(i);
+                        }
+                        bundle.putStringArrayList("user_name",user_get_name);
+                        bundle.putIntegerArrayList("user_turn",user_get_turn);
+                        bundle.putFloatArray("user_x",user_x);
+                        bundle.putFloatArray("user_y",user_y);
+                        bundle.putFloatArray("user_direction",user_direction);
+                        bundle.putBoolean("check_bl",checkin_bl);
+                        bundle.putInt("size",size);
+                        bundle.putString("ID",mcurrent_user_id);
+                        bundle.putString("place",getPlace_str1);
+                        bundle.putInt("floor",user_get_floor);
+                        bundle.putIntegerArrayList("like",get_like);
+                        timer.cancel();
+                        intent.putExtras(bundle);
+                        startActivityForResult(intent,requestCode2);
+                    }
+                }
+                else
+                {
+                    if (path_not_finish)
+                    {
+                        if (path[0]!=path[1])  //path1
+                        {
+                            distance = dist[path[index]][path[index+1]];
+                            if (distance - Walking_distance > 2) {
+                                Walking_distance = (stepCount - getStepCount_before) * stepDistance;
+                            } else {
+                                index++;
+                                getStepCount_before = stepCount;
+                                Walking_distance = 0;
+
+                            }
+                        }
+                    }
+                    if (path[index]==get_path_floor&&!start_again)
+                    {
+                        start_dir=false;
+                        path_not_finish=false;
+                        Walking_distance=0;
+                        stepCount=0;
+                        getStepCount_before=0;
+                    }
+                    if (start_again)
+                    {
+                        distance = dist2[path2[index2]][path2[index2+1]];
+                        if (distance - Walking_distance > 2) {
+                            Walking_distance = (stepCount - getStepCount_before) * stepDistance;
+                        } else {
+                            index2++;
+                            getStepCount_before = stepCount;
+                            Walking_distance = 0;
+                        }
+                        if (path2[index2]==end_int)
+                        {
+                            start_navigation=false;
+                            Intent intent=new Intent(navigation.this,arrive.class);
+                            int size=user_get_name.size();
+                            int size2=user_get_name_2.size();
+                            float[] user_x=new float[size],user_y=new float[size],user_direction=new float[size];
+                            float[] user_x2=new float[size2],user_y2=new float[size2],user_direction2=new float[size2];
+                            for(int i=0; i<size; i++){
+                                user_x[i] = user_get_x.get(i);
+                                user_y[i] = user_get_y.get(i);
+                                user_direction[i] = user_get_direction.get(i);
+                            }
+                            for(int i=0; i<size2; i++){
+                                user_x2[i] = user_get_x_2.get(i);
+                                user_y2[i] = user_get_y_2.get(i);
+                                user_direction2[i] = user_get_direction_2.get(i);
+                            }
+                            bundle.putStringArrayList("user_name",user_get_name);
+                            bundle.putStringArrayList("user_name2",user_get_name_2);
+                            bundle.putIntegerArrayList("user_turn",user_get_turn);
+                            bundle.putIntegerArrayList("user_turn2",user_get_turn_2);
+                            bundle.putFloatArray("user_x",user_x);
+                            bundle.putFloatArray("user_x2",user_x2);
+                            bundle.putFloatArray("user_y",user_y);
+                            bundle.putFloatArray("user_y2",user_y2);
+                            bundle.putFloatArray("user_direction",user_direction);
+                            bundle.putFloatArray("user_direction2",user_direction2);
+                            bundle.putBoolean("check_bl",checkin_bl);
+                            bundle.putBoolean("check_bl2",checkin_bl2);
+                            bundle.putInt("size",size);
+                            bundle.putInt("size2",size2);
+                            bundle.putString("ID",mcurrent_user_id);
+                            bundle.putString("place",getPlace_str1);
+                            bundle.putString("place2",getPlace_str2);
+                            bundle.putInt("floor",get_floor1);
+                            bundle.putInt("floor2",get_floor2);
+                            bundle.putIntegerArrayList("like",get_like);
+                            bundle.putIntegerArrayList("like2",get_like2);
+                            timer.cancel();
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent,requestCode2);
+                        }
+                    }
+
+                }
+
+
             }
         }
 
