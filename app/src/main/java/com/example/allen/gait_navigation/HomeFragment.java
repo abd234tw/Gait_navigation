@@ -71,7 +71,7 @@ public class HomeFragment extends Fragment {
         navigation_outdoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getContext(),googlemap.class);
+                Intent intent = new Intent(getContext(),MapsActivity.class);
                 startActivity(intent);
             }
         });

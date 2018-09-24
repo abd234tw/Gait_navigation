@@ -35,6 +35,7 @@ dependencies {
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     implementation files('libs/annotation-4.7.0-javadoc.jar')
     implementation files('libs/glide-full-4.7.0.jar')
+    //---------map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
     //List iTem Library
