@@ -753,7 +753,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         }
                         start_dir=true;
                         set=true;
-                        //drawmap();
+                        drawmap();
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
@@ -808,7 +808,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                 }
                                 else
                                 {
-                                    if (path_not_finish)
+                                    if (path_not_finish) //第一層導航
                                     {
                                         if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
                                             start_navigation=true;
@@ -1110,16 +1110,16 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             accelerometerValues = event.values.clone();
+
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             // 三个坐标轴方向上的电磁强度，单位是微特拉斯(micro-Tesla)，用uT表示，也可以是高斯(Gauss),1Tesla=10000Gauss
             magneticFieldValues = event.values.clone();
             calculateOrientation();
+
         }else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
             int degree = Math.round(event.values[0]);
             currentDegree = -degree;
             RotateAnimation rotateAnimation;
-
-
 
             if (start_dir) {
                 rotateAnimation = new RotateAnimation(currentDegree + dir[path[index]][path[index + 1]], 0, Animation.RELATIVE_TO_SELF, 0.5f,
@@ -1146,22 +1146,19 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 img_arrow.setAnimation(rotateAnimation);
             }
 
-        }else if (event.sensor.getType()==Sensor.TYPE_STEP_DETECTOR) {
-            if (set)
+          /*  if (set)
             {
                 if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
                     start_navigation=true;
                 set=false;
             }
             if (start_navigation) {
-                stepCount += event.values[0];
                 drawmap();
                 if (!up_down_floor)  //不是上下樓 (同樓層)
                 {
-                    if (path[0]!=path[1])  //路徑跟下個不一樣 開始
+                    if (path[0]!=path[1])  //當前路徑跟下個不一樣 開始
                     {
                         distance = dist[path[index]][path[index+1]];
-
                         if (distance - Walking_distance > 2) {
                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                         } else {
@@ -1193,14 +1190,13 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         bundle.putString("place",getPlace_str1);
                         bundle.putInt("floor",user_get_floor);
                         bundle.putIntegerArrayList("like",get_like);
-                        timer.cancel();
                         intent.putExtras(bundle);
                         startActivityForResult(intent,requestCode2);
                     }
                 }
-                else
+                else   //不同樓層
                 {
-                    if (path_not_finish)
+                    if (path_not_finish)  //第一層導航
                     {
                         if (path[0]!=path[1])  //path1
                         {
@@ -1219,11 +1215,12 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     {
                         start_dir=false;
                         path_not_finish=false;
+                        start_navigation=false;
                         Walking_distance=0;
                         stepCount=0;
                         getStepCount_before=0;
                     }
-                    if (start_again)
+                    if (start_again)   //第二層導航
                     {
                         distance = dist2[path2[index2]][path2[index2+1]];
                         if (distance - Walking_distance > 2) {
@@ -1272,15 +1269,20 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                             bundle.putInt("floor2",get_floor2);
                             bundle.putIntegerArrayList("like",get_like);
                             bundle.putIntegerArrayList("like2",get_like2);
-                            timer.cancel();
                             intent.putExtras(bundle);
                             startActivityForResult(intent,requestCode2);
                         }
                     }
 
                 }
+            }
+            layout();*/
 
 
+
+        }else if (event.sensor.getType()==Sensor.TYPE_STEP_DETECTOR) {
+            if (start_navigation) {
+                stepCount += event.values[0];
             }
         }
 
