@@ -1334,6 +1334,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         boolean first_end_point=false;
         do
         {
+
+
             if(get_turn.get(x)==0||get_turn.get(x)==-2){    //該點到下一點只有一條路
                 y=x+1;
                 dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
@@ -1358,9 +1360,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     dir[y][x]=get_direction.get(x)+180;
                 first_end_point=false;
             }
-            else if((get_turn.get(x)==1||get_turn.get(x)==-1))  //該點到下一點沒路停止點
+            else if((get_turn.get(x)==1||get_turn.get(x)==-1))  //該點到下一點沒路停止點    遇到7 建85 58
             {
-
                 if (get_turn.get(branch[b-1])!=branch_c)
                 {
                     branch_c++;
@@ -1383,8 +1384,22 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     branch_c=1;
                     b--;
                 }
+                //到這建完是x=8
+               /* while(get_turn.get(x+1)==-3)
+                {
+                    y=x+1;
+                    dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
+                    dist[y][x]=dist[x][y];//雙向
+                    dir[y][x]=get_direction.get(y);
+                    if (get_direction.get(x)>0)
+                        dir[x][y]=get_direction.get(y)-180;
+                    else
+                        dir[x][y]=get_direction.get(y)+180;
+                    x++;
+                }*/
 
             }
+
             if (!first_end_point)
                 x++;
         }while(x<get_turn.size());
