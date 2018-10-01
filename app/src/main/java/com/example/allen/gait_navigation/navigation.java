@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -753,7 +754,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         }
                         start_dir=true;
                         set=true;
-                        drawmap();
+                        //drawmap();
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
@@ -1362,7 +1363,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             }
             else if((get_turn.get(x)==1||get_turn.get(x)==-1))  //該點到下一點沒路停止點    遇到7 建85 58
             {
-                if (get_turn.get(branch[b-1])!=branch_c)
+                if (get_turn.get(branch[b-1])!=branch_c)//岔路5
                 {
                     branch_c++;
                     y=branch[b-1];
@@ -1385,21 +1386,49 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                     b--;
                 }
                 //到這建完是x=8
-               /* while(get_turn.get(x+1)==-3)
-                {
-                    y=x+1;
-                    dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
-                    dist[y][x]=dist[x][y];//雙向
-                    dir[y][x]=get_direction.get(y);
-                    if (get_direction.get(x)>0)
-                        dir[x][y]=get_direction.get(y)-180;
-                    else
-                        dir[x][y]=get_direction.get(y)+180;
-                    x++;
-                }*/
-
             }
+            if (x!=get_x.size()-1)
+            {
+                if (get_turn.get(x+1)==-3)
+                {
+                    x++;
+                    for (int i=0;i<get_x.size();i++)
+                    {
+                        if (get_x.get(x).equals(get_x.get(i))&&i!=x)
+                        {
+                            dist[i][x]=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));//兩點距離
+                            dist[x][i]=dist[i][x];//雙向
 
+                            if (get_y.get(x)<get_y.get(i))
+                            {
+                                dir[x][i]=get_direction.get(x)+90;
+                                dir[i][x]=get_direction.get(x)-90;
+                            }
+                            else
+                            {
+                                dir[x][i]=get_direction.get(x)-90;
+                                dir[i][x]=get_direction.get(x)+90;
+                            }
+
+                        }else if(get_y.get(x).equals(get_y.get(i))&&i!=x)
+                        {
+                            dist[i][x]=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));//兩點距離
+                            dist[x][i]=dist[i][x];//雙向
+                            if (get_x.get(x)<get_x.get(i))
+                            {
+                                dir[x][i]=get_direction.get(x)+180;
+                                dir[i][x]=get_direction.get(x);
+                            }
+                            else
+                            {
+                                dir[x][i]=get_direction.get(x);
+                                dir[i][x]=get_direction.get(x)+180;
+                            }
+                        }
+                    }
+                    first_end_point=false;
+                }
+            }
             if (!first_end_point)
                 x++;
         }while(x<get_turn.size());
@@ -1753,7 +1782,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 newbtn.setY(50);
                 layout.addView(newbtn,100,100);
             }*/
-
             layout.addView(bDrawl);
 
 
