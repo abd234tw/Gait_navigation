@@ -754,7 +754,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         }
                         start_dir=true;
                         set=true;
-                        //drawmap();
+                       // drawmap();
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
@@ -1335,8 +1335,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         boolean first_end_point=false;
         do
         {
-
-
             if(get_turn.get(x)==0||get_turn.get(x)==-2){    //該點到下一點只有一條路
                 y=x+1;
                 dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
@@ -1433,16 +1431,16 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 x++;
         }while(x<get_turn.size());
 
-        /* ------------------------------看數值可註解
-        for(int i=0;i<11;i++)
+        // ------------------------------看數值可註解
+        for(int i=0;i<20;i++)
         {
-            for(int j=0;j<11;j++)
+            for(int j=0;j<20;j++)
             {
                 if (dir[i][j]!=1000)
                     results.setText(results.getText()+"dist["+i+"]["+j+"]="+dist[i][j]+" "+dir[i][j]+"\n");
             }
         }
-        */
+
 
         if(up_down_floor)
         {
@@ -1638,6 +1636,50 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 }
 
             }
+            if (x!=get_x_2.size()-1)
+            {
+                if (get_turn_2.get(x+1)==-3)
+                {
+                    x++;
+                    for (int i=0;i<get_x_2.size();i++)
+                    {
+                        if (get_x_2.get(x).equals(get_x_2.get(i))&&i!=x)
+                        {
+                            dist2[i][x]=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));//兩點距離
+                            dist2[x][i]=dist2[i][x];//雙向
+
+                            if (get_y_2.get(x)<get_y_2.get(i))
+                            {
+                                dir2[x][i]=get_direction_2.get(x)+90;
+                                dir2[i][x]=get_direction_2.get(x)-90;
+                            }
+                            else
+                            {
+                                dir2[x][i]=get_direction_2.get(x)-90;
+                                dir2[i][x]=get_direction_2.get(x)+90;
+                            }
+
+                        }else if(get_y_2.get(x).equals(get_y_2.get(i))&&i!=x)
+                        {
+                            dist2[i][x]=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));//兩點距離
+                            dist2[x][i]=dist2[i][x];//雙向
+                            if (get_x_2.get(x)<get_x_2.get(i))
+                            {
+                                dir2[x][i]=get_direction_2.get(x)+180;
+                                dir2[i][x]=get_direction_2.get(x);
+                            }
+                            else
+                            {
+                                dir2[x][i]=get_direction_2.get(x);
+                                dir2[i][x]=get_direction_2.get(x)+180;
+                            }
+                        }
+                    }
+                    first_end_point=false;
+                }
+            }
+
+
             if (!first_end_point)
                 x++;
         }while(x<get_turn_2.size());

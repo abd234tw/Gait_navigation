@@ -167,6 +167,26 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
                             canvas.drawLine(width,height,width+d_x,height-d_y,paint);
                             width=width+d_x;
                             height=height-d_y;
+                        }else if(turn.get(c)==-3)
+                        {
+                            //width=width+(x.get(c)-x.get(c-1))*length;
+                            //height=height-(y.get(c)-y.get(c-1))*length;
+
+                            for (int i=0;i<x.size();i++)
+                            {
+                                if (x.get(c).equals(x.get(i))&&i!=c)
+                                {
+                                    d_x=(x.get(c)-x.get(i))*length;
+                                    d_y=(y.get(c)-y.get(i))*length;
+                                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                                }else if(y.get(c).equals(y.get(i))&&i!=c)
+                                {
+                                    d_x=(x.get(c)-x.get(i))*length;
+                                    d_y=(y.get(c)-y.get(i))*length;
+                                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                                }
+                            }
+                            c++;
                         }
                         else
                         {
