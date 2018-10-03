@@ -1330,12 +1330,104 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     private void best_path(){
         int[] didilong = new int [100];
         int branch[] = new int [8];
-        int x=0,y,b=0,didi,bp_start=end_int,bp_end=start_int,branch_c=1,f_min;
-        double path_min=1000;
+        int x=0,y,b=0,didi,bp_start=end_int,bp_end=start_int,branch_c=0,f_min;
+        double path_min=1000,min_dis_x,min_dis_y;
         boolean first_end_point=false;
         do
         {
-            if(get_turn.get(x)==0||get_turn.get(x)==-2){    //該點到下一點只有一條路
+            if(get_turn.get(x)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
+            {
+                min_dis_x=1000;
+                min_dis_y=1000;
+                for (int i=x+1;i<get_x.size();i++)
+                {
+                    if (Math.round(get_x.get(x))==Math.round(get_x.get(i)))//同一個X
+                    {
+                        if (min_dis_y>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))
+                        {
+                            min_dis_y=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                            dist[x][i]=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));//兩點距離
+                            dist[i][x]=dist[x][i];//雙向
+
+                            if (get_y.get(x)<get_y.get(i))//上面
+                            {
+                                dir[x][i]=get_direction.get(0);
+                                if(get_direction.get(0)+180>180)
+                                {
+                                    dir[i][x]=get_direction.get(0)+180-360;
+                                }
+                                else
+                                {
+                                    dir[i][x]=get_direction.get(0)+180;
+                                }
+                            }
+                            else//下面
+                            {
+                                if(get_direction.get(0)+180>180)
+                                {
+                                    dir[x][i]=get_direction.get(0)+180-360;
+                                }
+                                else
+                                {
+                                    dir[x][i]=get_direction.get(0)+180;
+                                }
+                                dir[i][x]=get_direction.get(0);
+                            }
+                        }
+                    }else if(Math.round(get_y.get(x))==Math.round(get_y.get(i)))//同高度
+                    {
+                        if (min_dis_x>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
+                        {
+                            branch_c++;
+                            min_dis_x=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                            dist[x][i]=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));//兩點距離
+                            dist[i][x]=dist[x][i];//雙向
+                            if (get_x.get(x)<get_x.get(i))//  下一點在右邊
+                            {
+                                if (get_direction.get(0)>90)
+                                {
+                                    dir[x][i]=get_direction.get(0)+90-360;
+                                    dir[i][x]=get_direction.get(0)-90;
+                                }
+                                else if(get_direction.get(0)<-90)
+                                {
+                                    dir[x][i]=get_direction.get(0)+90;
+                                    dir[i][x]=get_direction.get(0)-90+360;
+                                }
+                            }
+                            else //左邊
+                            {
+                                if (get_direction.get(0)>90)
+                                {
+                                    dir[x][i]=get_direction.get(0)-90;
+                                    dir[i][x]=get_direction.get(0)+90-360;
+                                }
+                                else if(get_direction.get(0)<-90)
+                                {
+                                    dir[x][i]=get_direction.get(0)-90+360;
+                                    dir[i][x]=get_direction.get(0)+90;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if(get_turn.get(x)==0||get_turn.get(x)==-2)
+            {
+                y=x+1;
+                dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
+                dist[y][x]=dist[x][y];//雙向
+                dir[x][y]=get_direction.get(x);
+                if (get_direction.get(x)>0)
+                    dir[y][x]=get_direction.get(x)-180;
+                else
+                    dir[y][x]=get_direction.get(x)+180;
+            }
+
+            x++;
+
+
+            /*if(get_turn.get(x)==0||get_turn.get(x)==-2){    //該點到下一點只有一條路
                 y=x+1;
                 dist[x][y]=Math.sqrt(Math.pow((get_x.get(y) - get_x.get(x)), 2.0) +Math.pow((get_y.get(y) - get_y.get(x)), 2.0));//兩點距離
                 dist[y][x]=dist[x][y];//雙向
@@ -1428,8 +1520,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 }
             }
             if (!first_end_point)
-                x++;
-        }while(x<get_turn.size());
+                x++;*/
+        }while(x<get_turn.size()-1);
 
         // ------------------------------看數值可註解
         for(int i=0;i<20;i++)
@@ -1437,7 +1529,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             for(int j=0;j<20;j++)
             {
                 if (dir[i][j]!=1000)
-                    results.setText(results.getText()+"dist["+i+"]["+j+"]="+dist[i][j]+" "+dir[i][j]+"\n");
+                    results.setText(results.getText()+"dist["+i+"]["+j+"]="+Math.round(dist[i][j])+" "+dir[i][j]+" "+branch_c+"\n");
             }
         }
 
