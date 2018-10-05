@@ -17,7 +17,7 @@ import java.util.Currency;
 
 public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     private Paint paint,paint2,paint3,paint4,paint5,paint6,paint7;//聲明畫筆
-     float init=-200;
+     float init_x=-200,init_y=-200;
      float width,height;
      int pen=10,c,path_c,length=15;
      float d_x,d_y;
@@ -27,6 +27,7 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     ArrayList<Integer> branch=new ArrayList<>();
     ArrayList<String>name=new ArrayList<>();
     int[] path;
+    float dir[][];
 
     //------------------
     private SurfaceHolder holder;
@@ -110,10 +111,6 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     {
         y=dy;
     }
-    public void draw_branch(ArrayList<Integer> dt)
-    {
-        branch=dt;
-    }
     public void draw_turn(ArrayList<Integer> dt)
     {
         turn=dt;
@@ -128,6 +125,7 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     public void draw_step_c(int dsc){stepcount=dsc;}
     public void draw_index(int di){index=di;}
     public void draw_step_cb(int dscb){stepcountb=dscb;}
+    public void draw_dir(float ddir[][]){dir=ddir;}
 
     class RefreshThread extends Thread {
         private SurfaceHolder holder;
@@ -154,57 +152,120 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
 
                     canvas.drawColor(Color.BLACK);
                     //---------------
-                    width=canvas.getWidth()+init;
-                    height=canvas.getHeight()+init;
-                    int branch_c=branch.size();
+                    int branch_c=branch.size(),min_up=0,min_down=0,min_right=0,min_left=0;
+                    double min_dis_up,min_dis_down,min_dis_right,min_dis_left;
                     c=0;
-                    do                              //畫地圖
+
+                    for (int i=0;i<name.size();i++)
                     {
-                        if (turn.get(c)==0||turn.get(c)>=2||turn.get(c)==-2)
+                        if (name.get(i).equals("服務中心"))
                         {
+                            length=20;
+                            init_x=-500;
+                            init_y=-100;
+                        }
+
+                    }
+
+                    do
+                    {
+                        if(turn.get(c)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
+                        {
+                            min_dis_up=1000;
+                            min_dis_down=1000;
+                            min_dis_right=1000;
+                            min_dis_left=1000;
+                            for (int i=c+1;i<x.size();i++)
+                            {
+                                if (Math.round(x.get(c))==Math.round(x.get(i)))//同一個X
+                                {
+                                    if (y.get(c)<y.get(i))//上面
+                                    {
+                                        if (min_dis_up>Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0)))
+                                        {
+                                            min_dis_up=Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0));
+                                            min_up=i;
+                                        }
+                                    }
+                                    else//下面
+                                    {
+                                        if (min_dis_down>Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0)))
+                                        {
+                                            min_dis_down=Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0));
+                                            min_down=i;
+                                        }
+                                    }
+                                }else if(Math.round(y.get(c))==Math.round(y.get(i)))//同Y
+                                {
+                                    if (x.get(c)<x.get(i))//  下一點在右邊
+                                    {
+                                        if (min_dis_right>Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
+                                        {
+                                            min_dis_right=Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0));
+                                            min_right=i;
+                                        }
+                                    }
+                                    else //左邊
+                                    {
+                                        if (min_dis_left>Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
+                                        {
+                                            min_dis_left=Math.sqrt(Math.pow((x.get(i) - x.get(c)), 2.0) +Math.pow((y.get(i) - y.get(c)), 2.0));
+                                            min_left=i;
+                                        }
+                                    }
+                                }
+                            }
+                            //-------up----
+                            if (min_dis_up!=1000)
+                            {
+                                width=canvas.getWidth()+init_x+x.get(c)*length;
+                                height=canvas.getHeight()+init_y-y.get(c)*length;
+                                d_x=(x.get(min_up)-x.get(c))*length;
+                                d_y=(y.get(min_up)-y.get(c))*length;
+                                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            }
+                            //------down----
+                            if (min_dis_down!=1000)
+                            {
+                                width=canvas.getWidth()+init_x+x.get(c)*length;
+                                height=canvas.getHeight()+init_y-y.get(c)*length;
+                                d_x=(x.get(min_down)-x.get(c))*length;
+                                d_y=(y.get(min_down)-y.get(c))*length;
+                                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            }
+                            //------right-------
+                            if (min_dis_right!=1000) {
+                                width=canvas.getWidth()+init_x+x.get(c)*length;
+                                height=canvas.getHeight()+init_y-y.get(c)*length;
+                                d_x=(x.get(min_right)-x.get(c))*length;
+                                d_y=(y.get(min_right)-y.get(c))*length;
+                                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            }
+                            //-------left--------
+                            if (min_dis_left!=1000) {
+                                width=canvas.getWidth()+init_x+x.get(c)*length;
+                                height=canvas.getHeight()+init_y-y.get(c)*length;
+                                d_x=(x.get(min_left)-x.get(c))*length;
+                                d_y=(y.get(min_left)-y.get(c))*length;
+                                canvas.drawLine(width,height,width+d_x,height-d_y,paint);
+                            }
+                        }
+                        else if(turn.get(c)==0||turn.get(c)==-2)
+                        {
+                            width=canvas.getWidth()+init_x+x.get(c)*length;
+                            height=canvas.getHeight()+init_y-y.get(c)*length;
                             d_x=(x.get(c+1)-x.get(c))*length;
                             d_y=(y.get(c+1)-y.get(c))*length;
                             canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                            width=width+d_x;
-                            height=height-d_y;
-                        }else if(turn.get(c)==-3)
-                        {
-                            //width=width+(x.get(c)-x.get(c-1))*length;
-                            //height=height-(y.get(c)-y.get(c-1))*length;
-
-                            for (int i=0;i<x.size();i++)
-                            {
-                                if (x.get(c).equals(x.get(i))&&i!=c)
-                                {
-                                    d_x=(x.get(c)-x.get(i))*length;
-                                    d_y=(y.get(c)-y.get(i))*length;
-                                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                                }else if(y.get(c).equals(y.get(i))&&i!=c)
-                                {
-                                    d_x=(x.get(c)-x.get(i))*length;
-                                    d_y=(y.get(c)-y.get(i))*length;
-                                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                                }
-                            }
-                            c++;
-                        }
-                        else
-                        {
-                            width=canvas.getWidth()+init+x.get(branch.get(branch_c-1))*length;
-                            height=canvas.getHeight()+init-y.get(branch.get(branch_c-1))*length;
-                            d_x=(x.get(c+1)-x.get(branch.get(branch_c-1)))*length;
-                            d_y=(y.get(c+1)-y.get(branch.get(branch_c-1)))*length;
-                            canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                            branch_c--;
                         }
                         c++;
-                        if (c==x.size()-1)
-                            c++;
-                    }while(c<x.size());
+                    }while(c<turn.size()-1);
 
 
-                    width=canvas.getWidth()+init+x.get(path[0])*length;
-                    height=canvas.getHeight()+init-y.get(path[0])*length;
+
+
+                    width=canvas.getWidth()+init_x+x.get(path[0])*length;
+                    height=canvas.getHeight()+init_y-y.get(path[0])*length;
 
                     for (int i=1;i<path_c;i++) {
                         d_x = (x.get(path[i]) - x.get(path[i - 1])) * length;
@@ -229,8 +290,8 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
 
                     //---------------
 
-                    currentX=canvas.getWidth()+init+x.get(path[index])*length;
-                    currentY=canvas.getHeight()+init-y.get(path[index])*length;
+                    currentX=canvas.getWidth()+init_x+x.get(path[index])*length;
+                    currentY=canvas.getHeight()+init_y-y.get(path[index])*length;
                    /* if (path[index]!=path[path_c-1])
                         index++;
                     else

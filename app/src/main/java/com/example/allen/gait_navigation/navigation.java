@@ -74,7 +74,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     //****************變數*********************
     ArrayList<String> get_start_floor=new ArrayList<>(),get_name=new ArrayList<String>(),user_get_name=new ArrayList<String>();
     ArrayList<String> get_end_floor=new ArrayList<>(),get_name_2=new ArrayList<String>(),user_get_name_2=new ArrayList<String>();
-    ArrayList<Integer> get_turn=new ArrayList<>(),user_get_turn=new ArrayList<>(),get_like = new ArrayList<>(),get_like2 = new ArrayList<>(),get_branch=new ArrayList<>();
+    ArrayList<Integer> get_turn=new ArrayList<>(),user_get_turn=new ArrayList<>(),get_like = new ArrayList<>(),get_like2 = new ArrayList<>();
     ArrayList<Integer> get_turn_2=new ArrayList<>(),user_get_turn_2=new ArrayList<>();
     ArrayList<Float> get_x=new ArrayList<Float>(),get_y=new ArrayList<Float>(),get_direction=new ArrayList<Float>(),
             user_get_x=new ArrayList<Float>(),user_get_y=new ArrayList<Float>(),user_get_direction=new ArrayList<Float>();
@@ -754,7 +754,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         }
                         start_dir=true;
                         set=true;
-                       // drawmap();
+                        drawmap();
                         TimerTask task = new TimerTask() {
                             @Override
                             public void run() {
@@ -1022,12 +1022,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         user_get_name.add(String.valueOf(ds.child("name").getValue()));
                     }
                     get_name.add("請選擇以上地點");
-                    for (int i=0;i<get_turn.size();i++)
-                    {
-                        if (get_turn.get(i)==2)
-                            get_branch.add(i);
-                    }
-                    //drawmap();
                 }
                 if (qr)
                 {
@@ -1827,11 +1821,11 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl=new  Drawl(this);
             bDrawl.draw_x(get_x);
             bDrawl.draw_y(get_y);
-            bDrawl.draw_branch(get_branch);
             bDrawl.draw_turn(get_turn);
             bDrawl.draw_path(path);
             bDrawl.draw_path_c(path_c);
             bDrawl.draw_name(get_name);
+            bDrawl.draw_dir(dir);
           //  bDrawl.draw_stepdis(Float.valueOf(String.valueOf(stepDistance)));
            // bDrawl.draw_step_c(stepCount);
          //   bDrawl.draw_step_cb(getStepCount_before);
