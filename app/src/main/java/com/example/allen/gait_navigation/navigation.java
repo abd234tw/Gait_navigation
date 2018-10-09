@@ -1326,7 +1326,6 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         int branch[] = new int [8];
         int x=0,y,b=0,didi,bp_start=end_int,bp_end=start_int,branch_c=0,f_min,min_up=0,min_down=0,min_right=0,min_left=0;
         double path_min=1000,min_dis_up,min_dis_down,min_dis_right,min_dis_left;
-        boolean first_end_point=false;
         do
         {
             if(get_turn.get(x)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
@@ -1588,8 +1587,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     private void best_path_floor(){
         int[] didilong = new int [100];
         int branch[] = new int [8];
-        int x=0,y,b=0,didi,bp_start=end_int,bp_end=start_int,branch_c=1;
-        double path_min=1000;
+        int x=0,y,b=0,didi,bp_start=end_int,bp_end=start_int,branch_c=1,min_up=0,min_down=0,min_right=0,min_left=0;
+        double path_min=1000,min_dis_up,min_dis_down,min_dis_right,min_dis_left;
         boolean first_end_point=false;
         for (int i=0;i<get_x_2.size();i++)
         {
@@ -1601,105 +1600,122 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         }
         do
         {
-            if(get_turn_2.get(x)==0||get_turn_2.get(x)==-2){    //該點到下一點只有一條路
-                y=x+1;
-                dist2[x][y]=Math.sqrt(Math.pow((get_x_2.get(y) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(y) - get_y_2.get(x)), 2.0));//兩點距離
-                dist2[y][x]=dist2[x][y];//雙向
-                dir2[x][y]=get_direction_2.get(x);
-                if (get_direction_2.get(x)>0)
-                    dir2[y][x]=get_direction_2.get(x)-180;
-                else
-                    dir2[y][x]=get_direction_2.get(x)+180;
-                first_end_point=false;
-            }
-            else if(get_turn_2.get(x)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
+            if(get_turn_2.get(x)>=2)  //該點到下一點是岔路2表示兩條3表示三條.....
             {
-                branch[b++]=x;  //岔路點存起來
-                y=x+1;
-                dist2[x][y]=Math.sqrt(Math.pow((get_x_2.get(y) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(y) - get_y_2.get(x)), 2.0));//兩點距離
-                dist2[y][x]=dist2[x][y];//雙向
-                dir2[x][y]=get_direction_2.get(x);
-                if (get_direction_2.get(x)>0)
-                    dir2[y][x]=get_direction_2.get(x)-180;
-                else
-                    dir2[y][x]=get_direction_2.get(x)+180;
-                first_end_point=false;
-            }
-            else if((get_turn_2.get(x)==1||get_turn_2.get(x)==-1))  //該點到下一點沒路停止點
-            {
-
-                if (get_turn_2.get(branch[b-1])!=branch_c)
+                min_dis_up=1000;
+                min_dis_down=1000;
+                min_dis_right=1000;
+                min_dis_left=1000;
+                for (int i=x+1;i<get_x_2.size();i++)
                 {
-                    branch_c++;
-                    y=branch[b-1];
-                    if (x!=get_turn_2.size()-1)//最後一個不加
-                        x++;
-                    dist2[x][y]=Math.sqrt(Math.pow((get_x_2.get(y) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(y) - get_y_2.get(x)), 2.0));//兩點距離
-                    dist2[y][x]=dist2[x][y];//雙向
-                    dir2[x][y]=get_direction_2.get(x);
-                    if (get_direction_2.get(x)>0)
-                        dir2[y][x]=get_direction_2.get(x)-180;
-                    else
-                        dir2[y][x]=get_direction_2.get(x)+180;
-                    first_end_point=true;
-                }
-                else
-                {
-                    // Toast.makeText(navigation.this,"i come ",Toast.LENGTH_SHORT).show();
-                    first_end_point=false;
-                    branch_c=1;
-                    b--;
-                }
-
-            }
-            if (x!=get_x_2.size()-1)
-            {
-                if (get_turn_2.get(x+1)==-3)
-                {
-                    x++;
-                    for (int i=0;i<get_x_2.size();i++)
+                    if (Math.round(get_x_2.get(x))==Math.round(get_x_2.get(i)))//同一個X
                     {
-                        if (get_x_2.get(x).equals(get_x_2.get(i))&&i!=x)
+                        if (get_y_2.get(x)<get_y_2.get(i))//上面
                         {
-                            dist2[i][x]=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));//兩點距離
-                            dist2[x][i]=dist2[i][x];//雙向
-
-                            if (get_y_2.get(x)<get_y_2.get(i))
+                            if (min_dis_up>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))
                             {
-                                dir2[x][i]=get_direction_2.get(x)+90;
-                                dir2[i][x]=get_direction_2.get(x)-90;
+                                min_dis_up=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y_2.get(x)), 2.0));
+                                min_up=i;
                             }
-                            else
-                            {
-                                dir2[x][i]=get_direction_2.get(x)-90;
-                                dir2[i][x]=get_direction_2.get(x)+90;
-                            }
-
-                        }else if(get_y_2.get(x).equals(get_y_2.get(i))&&i!=x)
+                        }
+                        else//下面
                         {
-                            dist2[i][x]=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));//兩點距離
-                            dist2[x][i]=dist2[i][x];//雙向
-                            if (get_x_2.get(x)<get_x_2.get(i))
+                            if (min_dis_down>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))
                             {
-                                dir2[x][i]=get_direction_2.get(x)+180;
-                                dir2[i][x]=get_direction_2.get(x);
+                                min_dis_down=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));
+                                min_down=i;
                             }
-                            else
+                        }
+                    }else if(Math.round(get_y_2.get(x))==Math.round(get_y_2.get(i)))//同Y
+                    {
+                        if (get_x_2.get(x)<get_x_2.get(i))//  下一點在右邊
+                        {
+                            if (min_dis_right>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
                             {
-                                dir2[x][i]=get_direction_2.get(x);
-                                dir2[i][x]=get_direction_2.get(x)+180;
+                                min_dis_right=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));
+                                min_right=i;
+                            }
+                        }
+                        else //左邊
+                        {
+                            if (min_dis_left>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
+                            {
+                                min_dis_left=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));
+                                min_left=i;
                             }
                         }
                     }
-                    first_end_point=false;
+                }
+                //-------up----
+                if (min_dis_up!=1000)
+                {
+                    dir2[x][min_up]=get_direction_2.get(0);
+                    if(get_direction_2.get(0)+180>180)
+                        dir2[min_up][x]=get_direction_2.get(0)+180-360;
+                    else
+                        dir2[min_up][x]=get_direction_2.get(0)+180;
+                    dist2[x][min_up]=min_dis_up;//兩點距離
+                    dist2[min_up][x]=dist2[x][min_up];//雙向
+                }
+                //------down----
+                if (min_dis_down!=1000)
+                {
+                    if (get_direction.get(0) + 180 > 180)
+                        dir2[x][min_down] = get_direction_2.get(0) + 180 - 360;
+                    else
+                        dir2[x][min_down] = get_direction_2.get(0) + 180;
+                    dir2[min_down][x] = get_direction_2.get(0);
+                    dist2[x][min_down]=min_dis_down;//兩點距離
+                    dist2[min_down][x]=dist2[x][min_down];//雙向
+                }
+                //------right-------
+                if (min_dis_right!=1000) {
+                    if (get_direction_2.get(0) > 90) {
+                        dir2[x][min_right] = get_direction_2.get(0) + 90 - 360;
+                        dir2[min_right][x] = get_direction_2.get(0) - 90;
+                    } else if (get_direction_2.get(0) < -90) {
+                        dir[x][min_right] = get_direction_2.get(0) + 90;
+                        dir[min_right][x] = get_direction_2.get(0) - 90 + 360;
+                    }
+                    else
+                    {
+                        dir2[x][min_right] = get_direction_2.get(0) + 90;
+                        dir2[min_right][x] = get_direction_2.get(0) - 90;
+                    }
+                    dist2[x][min_right]=min_dis_right;//兩點距離
+                    dist2[min_right][x]=dist2[x][min_right];//雙向
+                }
+                //-------left--------
+                if (min_dis_left!=1000) {
+                    if (get_direction_2.get(0) > 90) {
+                        dir2[x][min_left] = get_direction_2.get(0) - 90;
+                        dir2[min_left][x] = get_direction_2.get(0) + 90 - 360;
+                    } else if (get_direction_2.get(0) < -90) {
+                        dir2[x][min_left] = get_direction_2.get(0) - 90 + 360;
+                        dir2[min_left][x] = get_direction_2.get(0) + 90;
+                    }
+                    else
+                    {
+                        dir2[x][min_left] = get_direction_2.get(0) - 90;
+                        dir2[min_left][x] = get_direction_2.get(0) + 90;
+                    }
+                    dist2[x][min_left]=min_dis_left;//兩點距離
+                    dist2[min_left][x]=dist2[x][min_left];//雙向
                 }
             }
-
-
-            if (!first_end_point)
-                x++;
-        }while(x<get_turn_2.size());
-
+            else if(get_turn_2.get(x)==0||get_turn_2.get(x)==-2)
+            {
+                y=x+1;
+                dist2[x][y]=Math.sqrt(Math.pow((get_x_2.get(y) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(y) - get_y_2.get(x)), 2.0));//兩點距離
+                dist2[y][x]=dist[x][y];//雙向
+                dir2[x][y]=get_direction_2.get(x);
+                if (get_direction_2.get(x)>0)
+                    dir2[y][x]=get_direction_2.get(x)-180;
+                else
+                    dir2[y][x]=get_direction_2.get(x)+180;
+            }
+            x++;
+        }while(x<get_turn_2.size()-1);
         /* ------------------------------看數值可註解
         for(int i=0;i<11;i++)
         {
