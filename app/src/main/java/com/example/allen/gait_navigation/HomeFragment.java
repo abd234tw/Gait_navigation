@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -29,7 +31,6 @@ public class HomeFragment extends Fragment {
 
     private CardView add_new_map_card,reset_card,navigation_card,navigation_outdoor;
     Intent intent;
-    //    Button getdata_btn,navigation_btn,reset_btn;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ArrayList<String>user_get_place=new ArrayList<>();
@@ -43,9 +44,10 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-//        getdata_btn= view.findViewById(R.id.getdata_btn);
-//        navigation_btn = view.findViewById(R.id.navigation_btn);
-//        reset_btn = view.findViewById(R.id.reset_btn);
+        //判斷有沒有網路
+        if(!isConnected(getContext())) {
+            buildDialog(getContext()).show();
+        }
 
         //選單 CardView
         add_new_map_card = view.findViewById(R.id.add_new_map_card);
@@ -75,21 +77,6 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             }
         });
-//        getdata_btn.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent=new Intent(getContext(),GetPoint.class);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        navigation_btn.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getContext(),navigation.class);
-//                startActivity(intent);
-//            }
-//        });
 
         DatabaseReference myRef2 = database.getReference("Map").child("Location");// 為了把主要地圖丟到每個使用者底下  <--  database_btn 做前面的事
         myRef2.addValueEventListener(new ValueEventListener() {
@@ -111,16 +98,44 @@ public class HomeFragment extends Fragment {
                 Reset();
             }
         });
-//        reset_btn.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Reset();
-//            }
-//        });
-//        return inflater.inflate(R.layout.fragment_home, container, false);
+
         return view;
     }
 
+    //網路是否有連線
+    public boolean isConnected(Context context) {
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
+            else return false;
+        } else{
+            return false;
+        }
+    }
+    //沒網路則顯示提醒
+    public AlertDialog.Builder buildDialog(Context c) {
+        View view = getLayoutInflater().inflate(R.layout.alertdialog_no_wifi, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(c);
+        builder.setView(view);
+        builder.setTitle("網路連線失敗");
+//        builder.setMessage("請開啟Wifi或手機行動網路");
+
+        builder.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        return builder;
+    }
 
     private void Reset(){
         CharSequence options[] = new CharSequence[]{"確定", "取消"};

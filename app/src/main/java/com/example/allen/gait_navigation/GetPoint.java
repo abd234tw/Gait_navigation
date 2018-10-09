@@ -1,6 +1,7 @@
 package com.example.allen.gait_navigation;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -9,8 +10,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -19,7 +23,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -36,6 +42,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class GetPoint extends AppCompatActivity implements SensorEventListener{
+
+    AlertDialog alertDialog;
+    View view;
+
     //sensor
     private SensorManager sensorManager;
     private Sensor magneticSensor;
@@ -44,15 +54,16 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     private Sensor stepDetector;
     //button textview edittext timer checkbox
     public TextView gyroscope_view,orien_view,step_view;
-    public Button mAdd_btn,mRemove_btn,timer_start_btn,timer_pause_btn,get_distance_btn;
+    public Button mAdd_btn,mRemove_btn,timer_start_btn,timer_pause_btn,get_distance_btn,add_point_btn;
     public EditText et_Name,Step_length_edit,et_place;
     public Timer timer;//計時器
-    public CheckBox is_turn_floor,is_turn_branch,is_turn_end;
+    //    public CheckBox is_turn_floor,is_turn_branch,is_turn_end;
+    public ImageView is_turn_floor,is_turn_floor2,is_turn_branch,is_turn_end;
     //Firebase 用
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    String getPlace,getFloor,getName,get_X,get_Y,dir;
+    String getPlace,getFloor_reg,getFloor,getName_reg,getName,get_X,get_Y,dir,meter;
     //下拉式選單
-    Spinner floor_sp;//,building_sp;
+    Spinner building_sp,floor_sp;
     String[] item_name = {"工程一館","工程二館","工程三館","工程四館","工程五館"};
     String[] item_name2 = {"1","2","3","4","5","6","7","8","9","10"};
 
@@ -60,16 +71,18 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     //變數
     long place_count;
     private static final float NS2S = 1.0f / 1000000000.0f;
-    float[] angle=new float[3];
-    float[] position_angle=new float[3];
-    float[] step=new float[100];
+    float[] angle = new float[3];
+    float[] position_angle = new float[3];
+    float[] step = new float[100];
     float[] accelerometerValues = new float[3];   //加速度xyz
     float[] magneticFieldValues = new float[3];   //陀螺儀xyz
     float theta,stepcount,distance,first_direction,direction,timestamp;
-    int p_x=0,p_y=0,count,count2,turn,count_point=0;
-    double point_x=0,point_y=0;
+    int p_x = 0,p_y = 0,count,count2,turn_reg,turn,count_point=0;
+    double point_x = 0,point_y = 0;
     boolean first=true,begin=true,start=false,first_get_place=true;
-    String meter;
+    NumberPicker select_floor_numPik;
+    LinearLayout layout_is_turn_floor,layout_is_turn_floor2,layout_is_turn_branch,layout_is_turn_end;
+    TextView is_turn_floor_tv,is_turn_floor_tv2,is_turn_branch_tv,is_turn_end_tv;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -80,28 +93,9 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         gyroscope_view=findViewById(R.id.gyroscope_view);
         orien_view=findViewById(R.id.orien_view);
         step_view=findViewById(R.id.step_view);
-        Step_length_edit=findViewById(R.id.Step_length_edit);
-        et_place=findViewById(R.id.et_place);
-        // button checkbox
-        timer_start_btn=findViewById(R.id.timer_start_btn);
-        timer_pause_btn = findViewById(R.id.timer_pause_btn);
-        get_distance_btn=findViewById(R.id.get_distance_btn);
-        is_turn_floor=findViewById(R.id.is_turn_floor);
-        is_turn_branch=findViewById(R.id.is_turn_branch);
-        is_turn_end=findViewById(R.id.is_turn_end);
-        //Firebase
-        mAdd_btn = findViewById(R.id.mAdd_btn);
-        mRemove_btn = findViewById(R.id.mRemove_btn);
-        et_Name = findViewById(R.id.et_Name);
-       // building_sp = findViewById(R.id.building_sp);
-        floor_sp = findViewById(R.id.floor_sp);
-        //取得步長
-        get_distance_btn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getdistance();
-            }
-        });
+        add_point_btn = findViewById(R.id.add_point_btn);
+
+
         //輸出座標
         final Handler handler=new Handler() {
             @Override
@@ -111,90 +105,285 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
             }
 
         };
-        //一秒延遲後 每兩秒抓一次座標
-        timer_start_btn.setOnClickListener(new Button.OnClickListener() {
+
+        view = getLayoutInflater().inflate(R.layout.alertdialog_enter_step_distance, null);
+        Step_length_edit = view.findViewById(R.id.Step_length_edit);
+        et_place = view.findViewById(R.id.et_place);
+        select_floor_numPik = view.findViewById(R.id.select_floor_numPik);
+        select_floor_numPik.setMaxValue(50);
+        select_floor_numPik.setMinValue(1);
+        select_floor_numPik.setValue(1);
+        getFloor_reg = String.valueOf(select_floor_numPik.getValue());
+        //取得使用者選擇numberPicker的值
+        select_floor_numPik.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
-            public void onClick(View view) {
-                start=true;
-                TimerTask task=new TimerTask() {
-                    @Override
-                    public void run() {
-                        coordinate();   //計算座標
-                        Message m1=new Message();
-                        handler.sendMessage(m1);
+            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+                getFloor_reg = String.valueOf(newValue);
+            }
+        });
+        alertDialog = new AlertDialog.Builder(GetPoint.this).setTitle("地圖設定")
+                .setView(view)
+                .setPositiveButton("確認", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface paramAnonymousDialogInterface,
+                                        int paramAnonymousInt) {
+                        meter = String.valueOf(Step_length_edit.getText());
+                        meter = String.valueOf(Double.valueOf(meter)*0.45);//身高*0.45
+                        getPlace = et_place.getText().toString();//得到地點
+                        getFloor = getFloor_reg;
+
+                        start = true;
+                        TimerTask task=new TimerTask() {
+                            @Override
+                            public void run() {
+                                coordinate();   //計算座標
+                                Message m1=new Message();
+                                handler.sendMessage(m1);
+                            }
+                        };
+                        timer=new Timer(true);
+                        timer.schedule(task,1000,1000);
                     }
-                };
-                timer=new Timer(true);
-                timer.schedule(task,1000,1000);
-            }
-        });
-        //暫停timer
-        timer_pause_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timer.cancel();
-            }
-        });
-        //下拉式選單
-        spinner_adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name);
-       /* building_sp.setAdapter(spinner_adapter);
-        building_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                }).create();
+        alertDialog.show();
 
-
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });*/
-        spinner_adapter2 = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name2);
-        floor_sp.setAdapter(spinner_adapter2);
-        floor_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                getFloor = item_name2[position];
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        //傳資料庫
-        mAdd_btn.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getxy();
-            }
-        });
-        //移除資料庫上的資料
-        mRemove_btn.setOnClickListener(new View.OnClickListener() {
+        //
+        add_point_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getName = String.valueOf(et_Name.getText());
-                DatabaseReference myRef_remove = database.getReference(getPlace).child(getName);
-                myRef_remove.removeValue();
+                view = getLayoutInflater().inflate(R.layout.alertdialog_add_point_1, null);
+                et_Name = view.findViewById(R.id.et_Name);
+                et_Name.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        getName_reg = et_Name.getText().toString();
+                    }
+                });
+                //樓梯
+                is_turn_floor = view.findViewById(R.id.is_turn_floor);
+                is_turn_floor2 = view.findViewById(R.id.is_turn_floor2);
+                is_turn_branch = view.findViewById(R.id.is_turn_branch);
+                is_turn_end = view.findViewById(R.id.is_turn_end);
+                is_turn_floor_tv = view.findViewById(R.id.is_turn_floor_tv);
+                is_turn_floor_tv2 = view.findViewById(R.id.is_turn_floor_tv2);
+                is_turn_end_tv = view.findViewById(R.id.is_turn_end_tv);
+                is_turn_branch_tv = view.findViewById(R.id.is_turn_branch_tv);
+                layout_is_turn_floor = view.findViewById(R.id.layout_is_turn_floor);
+                layout_is_turn_floor2 = view.findViewById(R.id.layout_is_turn_floor2);
+                layout_is_turn_branch = view.findViewById(R.id.layout_is_turn_branch);
+                layout_is_turn_end = view.findViewById(R.id.layout_is_turn_end);
+                turn_reg = 0;
+                layout_is_turn_floor.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        is_turn_floor.setImageResource(R.drawable.stairs_red);
+                        is_turn_floor2.setImageResource(R.drawable.stairs);
+                        is_turn_branch.setImageResource(R.drawable.panel);
+                        is_turn_end.setImageResource(R.drawable.road_block);
+                        layout_is_turn_floor.setBackground(getResources().getDrawable(R.drawable.img_frame_red));
+                        layout_is_turn_floor2.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_branch.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_end.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        is_turn_floor_tv.setTextColor(Color.parseColor("#FC3E4F"));
+                        is_turn_floor_tv2.setTextColor(Color.parseColor("#000000"));
+                        is_turn_branch_tv.setTextColor(Color.parseColor("#000000"));
+                        is_turn_end_tv.setTextColor(Color.parseColor("#000000"));
+                        turn_reg = -2;
+                    }
+                });
+                //樓梯+末路
+                layout_is_turn_floor2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        is_turn_floor2.setImageResource(R.drawable.stairs_red);
+                        is_turn_floor.setImageResource(R.drawable.stairs);
+                        is_turn_branch.setImageResource(R.drawable.panel);
+                        is_turn_end.setImageResource(R.drawable.road_block);
+                        layout_is_turn_floor2.setBackground(getResources().getDrawable(R.drawable.img_frame_red));
+                        layout_is_turn_floor.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_branch.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_end.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        is_turn_floor_tv2.setTextColor(Color.parseColor("#FC3E4F"));
+                        is_turn_floor_tv.setTextColor(Color.parseColor("#000000"));
+                        is_turn_branch_tv.setTextColor(Color.parseColor("#000000"));
+                        is_turn_end_tv.setTextColor(Color.parseColor("#000000"));
+                        turn_reg = -1;
+                    }
+                });
+                //岔路
+                layout_is_turn_branch.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        is_turn_floor.setImageResource(R.drawable.stairs);
+                        is_turn_floor2.setImageResource(R.drawable.stairs);
+                        is_turn_branch.setImageResource(R.drawable.panel_red);
+                        is_turn_end.setImageResource(R.drawable.road_block);
+                        layout_is_turn_branch.setBackground(getResources().getDrawable(R.drawable.img_frame_red));
+                        layout_is_turn_floor.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_floor2.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_end.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        is_turn_branch_tv.setTextColor(Color.parseColor("#FC3E4F"));
+                        is_turn_floor_tv.setTextColor(Color.parseColor("#000000"));
+                        is_turn_floor_tv2.setTextColor(Color.parseColor("#000000"));
+                        is_turn_end_tv.setTextColor(Color.parseColor("#000000"));
+                        turn_reg = 2;
+                    }
+                });
+                //末路
+                layout_is_turn_end.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        is_turn_floor.setImageResource(R.drawable.stairs);
+                        is_turn_floor2.setImageResource(R.drawable.stairs);
+                        is_turn_branch.setImageResource(R.drawable.panel);
+                        is_turn_end.setImageResource(R.drawable.road_block_red);
+                        layout_is_turn_end.setBackground(getResources().getDrawable(R.drawable.img_frame_red));
+                        layout_is_turn_floor.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_floor2.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        layout_is_turn_branch.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                        is_turn_end_tv.setTextColor(Color.parseColor("#FC3E4F"));
+                        is_turn_floor_tv.setTextColor(Color.parseColor("#000000"));
+                        is_turn_floor_tv2.setTextColor(Color.parseColor("#000000"));
+                        is_turn_branch_tv.setTextColor(Color.parseColor("#000000"));
+                        turn_reg = 1;
+                    }
+                });
+                alertDialog = new AlertDialog.Builder(GetPoint.this).setTitle("座標設定")
+                        .setView(view)
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                alertDialog.hide();
+                            }
+                        })
+                        .setPositiveButton("確認", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface paramAnonymousDialogInterface,
+                                                int paramAnonymousInt) {
+                                getName = getName_reg;
+                                turn = turn_reg;
+                                Toast.makeText(GetPoint.this, getName+" "+turn,Toast.LENGTH_SHORT).show();
+                                is_turn_floor.setImageResource(R.drawable.stairs);
+                                is_turn_floor2.setImageResource(R.drawable.stairs);
+                                is_turn_branch.setImageResource(R.drawable.panel);
+                                is_turn_end.setImageResource(R.drawable.road_block);
+                                layout_is_turn_floor.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                                layout_is_turn_floor2.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                                layout_is_turn_branch.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                                layout_is_turn_end.setBackground(getResources().getDrawable(R.drawable.img_frame));
+                                is_turn_floor_tv.setTextColor(Color.parseColor("#000000"));
+                                is_turn_floor_tv2.setTextColor(Color.parseColor("#000000"));
+                                is_turn_branch_tv.setTextColor(Color.parseColor("#000000"));
+                                is_turn_end_tv.setTextColor(Color.parseColor("#000000"));
+
+                                getxy();
+                            }
+                        }).create();
+
+                alertDialog.show();
             }
         });
 
-        is_turn_floor.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) turn=-1;else turn=0;
-            }
-        });
+//        //取得步長
+//        get_distance_btn.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                getdistance();
+//            }
+//        });
 
-        is_turn_branch.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) turn=2;else turn=0;
-            }
-        });
-        is_turn_end.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) turn=1;else turn=0;
-            }
-        });
+        //一秒延遲後 每兩秒抓一次座標
+//        timer_start_btn.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                start = true;
+//                TimerTask task=new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        coordinate();   //計算座標
+//                        Message m1=new Message();
+//                        handler.sendMessage(m1);
+//                    }
+//                };
+//                timer=new Timer(true);
+//                timer.schedule(task,1000,1000);
+//            }
+//        });
+//        //暫停timer
+//        timer_pause_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                timer.cancel();
+//            }
+//        });
+        //下拉式選單
+//        spinner_adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name);
+//        building_sp.setAdapter(spinner_adapter);
+//        building_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//
+//
+//            }
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//            }
+//        });
+//        spinner_adapter2 = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1,item_name2);
+//        floor_sp.setAdapter(spinner_adapter2);
+//        floor_sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                getFloor = item_name2[position];
+//            }
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//            }
+//        });
+//        //傳資料庫
+//        mAdd_btn.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                getxy();
+//            }
+//        });
+        //移除資料庫上的資料
+//        mRemove_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                getName = String.valueOf(et_Name.getText());
+//                DatabaseReference myRef_remove = database.getReference(getPlace).child(getName);
+//                myRef_remove.removeValue();
+//            }
+//        });
+
+//        is_turn_floor.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                if (b) turn=-1;else turn=0;
+//            }
+//        });
+//
+//        is_turn_branch.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                if (b) turn=2;else turn=0;
+//            }
+//        });
+//        is_turn_end.setOnCheckedChangeListener(new RadioButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                if (b) turn=1;else turn=0;
+//            }
+//        });
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         magneticSensor =sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -309,7 +498,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     }
     //取得步長
     private void getdistance() {
-        meter=String.valueOf(Step_length_edit.getText());
+        meter = String.valueOf(Step_length_edit.getText());
         Toast.makeText(GetPoint.this,"步長已輸入",Toast.LENGTH_SHORT).show();
     }
     //計算並取得座標
@@ -391,11 +580,13 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     }
     //Firebase
     private void   getxy() {
-        getPlace=et_place.getText().toString();
-        getName = String.valueOf(et_Name.getText());
-        get_X = String.format("%.2f",point_x);
-        get_Y = String.format("%.2f",point_y);
-        dir=String.format("%.0f", position_angle[0]);
+//        getPlace=et_place.getText().toString();//得到地點
+//        getName = String.valueOf(et_Name.getText());//得到座標名稱
+        get_X = String.format("%.2f",point_x);//x
+        get_Y = String.format("%.2f",point_y);//y
+        dir = String.format("%.0f", position_angle[0]);
+        Toast.makeText(GetPoint.this, getPlace+" "+getFloor,Toast.LENGTH_SHORT).show();
+
         DatabaseReference myRef_Name = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("name");
         DatabaseReference myRef_X = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("X");
         DatabaseReference myRef_Y = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("Y");

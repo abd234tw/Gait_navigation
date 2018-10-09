@@ -220,19 +220,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-//    @Override
-//    public void onBackPressed() {
-//
-//        if (backPressedTime + 2000 > System.currentTimeMillis()){
-//            super.onBackPressed();
-//            finish();
-//            return;
-//        }else{
-//            Toast.makeText(getBaseContext(),"再按一次退出程式",Toast.LENGTH_SHORT).show();
-//        }
-//
-//        backPressedTime = System.currentTimeMillis();
-//    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

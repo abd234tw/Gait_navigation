@@ -1,8 +1,10 @@
 package com.example.allen.gait_navigation;
 
 import android.content.Intent;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -16,9 +18,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class arrive extends AppCompatActivity {
+
     int RESULT_OK=2;
+    //語音導航
+    private TextToSpeech mTTS;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -27,6 +34,26 @@ public class arrive extends AppCompatActivity {
 
         ImageView imageView=findViewById(R.id.imageView);
         Glide.with(this).load(R.drawable.firework).into(imageView);
+
+        //語音導航
+        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    int result = mTTS.setLanguage(Locale.TAIWAN);
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA
+                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("TTS", "Language not supported");
+                    } else {
+                        speak();//輸出到達目的地提醒
+                    }
+                } else {
+                    Log.e("TTS", "Initialization failed");
+                }
+            }
+        });
+
 
         //------------------新增打卡點-----------------
         Bundle bundle =this.getIntent().getExtras();
@@ -116,5 +143,21 @@ public class arrive extends AppCompatActivity {
             }
         });
 
+    }
+
+    //語音導航
+    private void speak() {
+        String text = "成功抵達目的地";
+        mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mTTS != null) {
+            mTTS.stop();
+            mTTS.shutdown();
+        }
+
+        super.onDestroy();
     }
 }

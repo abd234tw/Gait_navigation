@@ -9,6 +9,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.speech.RecognizerIntent;
@@ -18,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -49,6 +52,7 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -91,7 +95,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     float[][] dir2=new float[100][100];
     String[] msg;
     float Current_direction;
-    Boolean set=false,start_navigation=false,start_dir=false,checkin_bl=false,up_down_floor=false,start_again=false,path_not_finish=true,checkin_bl2=false,qr=false;
+    Boolean set=false,start_navigation=false,start_dir=false,checkin_bl=false,up_down_floor=false,start_again=false,path_not_finish=true,checkin_bl2=false,qr=false,start_voice=false;
     Timer timer;
     //***************下拉選單*******************
     Spinner spinner_start,spinner_end;
@@ -99,6 +103,10 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
     //轉移資料庫用(之後可以刪除)
     String mcurrent_user_id=mAuth.getCurrentUser().getUid();
+
+    //語音導航
+    private TextToSpeech mTTS;
+    boolean hasbeen_spoke = false;
 
     //選單
     AlertDialog alertDialog;
@@ -136,9 +144,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         scan_btn = findViewById(R.id.scan_btn);//QRcode
         checkin_btn = findViewById(R.id.checkin_btn);
         start_again_btn=findViewById(R.id.start_again_btn);
-//        spinner_start = findViewById(R.id.spinner_start);
-//        spinner_end = findViewById(R.id.spinner_end);
-//        name_edit = findViewById(R.id.name_edit);
+
         Choice_place1_btn = findViewById(R.id.Choice_place1_btn);//選擇地點(建築)
         Choice_place2_btn = findViewById(R.id.Choice_place2_btn);//選擇地點(建築)
         Choice_floor1_btn = findViewById(R.id.Choice_floor1_btn);//選擇樓層
@@ -155,6 +161,25 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this, stepDetector, SensorManager.SENSOR_DELAY_GAME);
+
+        //語音導航
+        mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    int result = mTTS.setLanguage(Locale.TAIWAN);
+
+                    if (result == TextToSpeech.LANG_MISSING_DATA
+                            || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Log.e("TTS", "Language not supported");
+                    } else {
+//                        mButtonSpeak.setEnabled(true);
+                    }
+                } else {
+                    Log.e("TTS", "Initialization failed");
+                }
+            }
+        });
 
         //******************地點(建築)資料*******************
         DatabaseReference myRef_place = database.getReference("Users").child(mcurrent_user_id).child("user_map").child("Location");
@@ -557,6 +582,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             public void onClick(View view) {
                 start_again=true;
                 start_navigation=true;
+                hasbeen_spoke = false;//語音導航
                 tv_degree.setText("請繼續前進");
             }
         });
@@ -762,12 +788,61 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                 if (!up_down_floor)  //不是上下樓 (同樓層)
                                 {
 
-                                    if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
-                                        start_navigation=true;
-
+                                    if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1]) {
+                                        start_navigation = true;
+                                        if (start_voice == false) {
+                                            speak(-1);//語音輸出: 開始導航
+                                            start_voice = true;
+                                        }
+                                    }
                                     if (start_navigation&&path[0]!=path[1])  //路徑跟下個不一樣 開始
                                     {
                                         distance = dist[path[index]][path[index+1]];
+
+                                        //語音導航，判斷向左、向右 (左-、右+)
+                                        int dir_judge = 0;
+                                        if (index<path_c-2){
+                                            if ((dir[path[index]][path[index+1]] > -179 && dir[path[index]][path[index+1]] < -90)){//第一條位於-90~-180
+                                                if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                    dir_judge = 1;//左轉
+                                                }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                    if (dir[path[index+1]][path[index+2]] > -179 && dir[path[index+1]][path[index+2]] < 0){//第二條
+                                                        dir_judge = 2;//右轉
+                                                    }else{
+                                                        dir_judge = 1;//左轉
+                                                    }
+
+                                                }else{
+                                                    dir_judge = 3;//繼續直走
+                                                }
+                                            }else if((dir[path[index]][path[index+1]] > 90 && dir[path[index]][path[index+1]] < 179)){//第一條位於90~180
+                                                if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                    if (dir[path[index+1]][path[index+2]] > 0 && dir[path[index+1]][path[index+2]] < 180){//第二條
+                                                        dir_judge = 1;//左轉
+                                                    }else{
+                                                        dir_judge = 2;//右轉
+                                                    }
+                                                }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                    dir_judge = 2;//右轉
+                                                }else{
+                                                    dir_judge = 3;//繼續直走
+                                                }
+                                            }else{
+                                                if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                    dir_judge = 1;//左轉
+                                                }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                    dir_judge = 2;//右轉
+                                                }else{
+                                                    dir_judge = 3;//繼續直走
+                                                }
+                                            }
+                                        }
+
+                                        //語音導航 目標前幾步發出提醒
+                                        if (distance - Walking_distance < 5 && hasbeen_spoke == false) {
+                                            speak(dir_judge);
+                                            hasbeen_spoke = true;
+                                        }
 
                                         if (distance - Walking_distance > 2) {
                                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
@@ -775,7 +850,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                             index++;
                                             getStepCount_before = stepCount;
                                             Walking_distance = 0;
-
+                                            hasbeen_spoke = false;
                                         }
 
                                     }
@@ -809,20 +884,72 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                 }
                                 else
                                 {
-                                    if (path_not_finish) //第一層導航
+                                    if (path_not_finish)
                                     {
-                                        if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1])
-                                            start_navigation=true;
+                                        //跨樓層part1
+                                        if (( Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))<=20&&Math.round(Current_direction) - (Math.round(dir[path[index]][path[index+1]]))>=-20)||path[0]==path[1]) {
+                                            start_navigation = true;
+                                            if (start_voice == false) {
+                                                speak(-1);//語音輸出: 開始導航
+                                                start_voice = true;
+                                            }
+                                        }
                                         if (start_navigation&&path[0]!=path[1])  //path1
                                         {
                                             distance = dist[path[index]][path[index+1]];
+
+                                            //語音導航，判斷向左、向右 (左-、右+)
+                                            int dir_judge = 0;
+                                            if (index<path_c-2){
+                                                if ((dir[path[index]][path[index+1]] > -179 && dir[path[index]][path[index+1]] < -90)){//第一條位於-90~-180
+                                                    if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                        dir_judge = 1;//左轉
+                                                    }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                        if (dir[path[index+1]][path[index+2]] > -179 && dir[path[index+1]][path[index+2]] < 0){//第二條
+                                                            dir_judge = 2;//右轉
+                                                        }else{
+                                                            dir_judge = 1;//左轉
+                                                        }
+
+                                                    }else{
+                                                        dir_judge = 3;//繼續直走
+                                                    }
+                                                }else if((dir[path[index]][path[index+1]] > 90 && dir[path[index]][path[index+1]] < 179)){//第一條位於90~180
+                                                    if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                        if (dir[path[index+1]][path[index+2]] > 0 && dir[path[index+1]][path[index+2]] < 180){//第二條
+                                                            dir_judge = 1;//左轉
+                                                        }else{
+                                                            dir_judge = 2;//右轉
+                                                        }
+                                                    }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                        dir_judge = 2;//右轉
+                                                    }else{
+                                                        dir_judge = 3;//繼續直走
+                                                    }
+                                                }else{
+                                                    if (dir[path[index]][path[index+1]] > dir[path[index+1]][path[index+2]]){
+                                                        dir_judge = 1;//左轉
+                                                    }else if (dir[path[index]][path[index+1]] < dir[path[index+1]][path[index+2]]){
+                                                        dir_judge = 2;//右轉
+                                                    }else{
+                                                        dir_judge = 3;//繼續直走
+                                                    }
+                                                }
+                                            }
+
+                                            //語音導航 目標前幾步發出提醒
+                                            if (distance - Walking_distance < 5 && hasbeen_spoke == false) {
+                                                speak(dir_judge);
+                                                hasbeen_spoke = true;
+                                            }
+
                                             if (distance - Walking_distance > 2) {
                                                 Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                             } else {
                                                 index++;
                                                 getStepCount_before = stepCount;
                                                 Walking_distance = 0;
-
+                                                hasbeen_spoke = false;
                                             }
                                         }
                                     }
@@ -837,13 +964,48 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                     }
                                     if (start_again)
                                     {
+                                        //跨樓層part2
                                         distance = dist2[path2[index2]][path2[index2+1]];
+
+                                        //語音導航，判斷向左、向右
+                                        int dir_judge = 0;
+                                        if (index2<path_c2-2){
+                                            if (dir2[path2[index2]][path2[index2+1]] > -179 && dir2[path2[index2]][path2[index2+1]] < -90){
+                                                if (dir2[path2[index2]][path2[index2+1]] > dir2[path2[index2+1]][path2[index2+2]]){
+                                                    dir_judge = 2;//右轉
+                                                }else if (dir2[path2[index2]][path2[index2+1]] < dir2[path2[index2+1]][path2[index2+2]]){
+                                                    if (dir2[path2[index2+1]][path2[index2+2]] > -179 && dir2[path2[index2+1]][path2[index2+2]] < 0){//第二條
+                                                        dir_judge = 2;//右轉
+                                                    }else{
+                                                        dir_judge = 1;//左轉
+                                                    }
+                                                }else{
+                                                    dir_judge = 3;//繼續直走
+                                                }
+                                            }else{
+                                                if (dir2[path2[index2]][path2[index2+1]] > dir2[path2[index2+1]][path2[index2+2]]){
+                                                    dir_judge = 1;//左轉
+                                                }else if (dir2[path2[index2]][path2[index2+1]] < dir2[path2[index2+1]][path2[index2+2]]){
+                                                    dir_judge = 2;//右轉
+                                                }else{
+                                                    dir_judge = 3;//繼續直走
+                                                }
+                                            }
+                                        }
+
+                                        //語音導航 目標前幾步發出提醒
+                                        if (distance - Walking_distance < 5 && hasbeen_spoke == false) {
+                                            speak(dir_judge);
+                                            hasbeen_spoke = true;
+                                        }
+
                                         if (distance - Walking_distance > 2) {
                                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                         } else {
                                             index2++;
                                             getStepCount_before = stepCount;
                                             Walking_distance = 0;
+                                            hasbeen_spoke = false;
                                         }
                                         if (path2[index2]==end_int)
                                         {
@@ -909,10 +1071,70 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         //*****************按鈕結尾*****************
     }
 
+    //網路是否有連線
+    public boolean isConnected(Context context) {
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+
+        if (netinfo != null && netinfo.isConnectedOrConnecting()) {
+            android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+            if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
+            else return false;
+        } else{
+            return false;
+        }
+    }
+    //沒網路則顯示提醒
+    public android.app.AlertDialog.Builder buildDialog(Context c) {
+        View view = getLayoutInflater().inflate(R.layout.alertdialog_no_wifi, null);
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(c);
+        builder.setView(view);
+        builder.setTitle("網路連線失敗");
+//        builder.setMessage("請開啟Wifi或手機行動網路");
+
+        builder.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        return builder;
+    }
+
     public void restartActivity(){
         Intent mIntent = getIntent();
         finish();
         startActivity(mIntent);
+    }
+
+    //語音導航
+    private void speak(int dir_judge) {
+        String text = "";//mEditText.getText().toString();
+        if (dir_judge == -1){
+            text = "開始導航";
+        }else if (dir_judge == 1){
+            text = "前方路口向左轉";
+        }else if (dir_judge == 2){
+            text = "前方路口向右轉";
+        }else if (dir_judge == 3){
+            text = "請繼續直走";
+        }
+        mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mTTS != null) {
+            mTTS.stop();
+            mTTS.shutdown();
+        }
+
+        super.onDestroy();
     }
 
     //實際距離、行走距離、步數、前步數
@@ -924,11 +1146,21 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             if (get_floor1>get_floor2)
             {
                 tv_degree.setText("請往下到"+get_floor2+"樓"+"\n"+"然後按下「已上下樓」按鈕");
+                if (hasbeen_spoke == false){
+                    String text = tv_degree.getText().toString();
+                    mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                    hasbeen_spoke = true;
+                }
                 start_again_btn.setVisibility(View.VISIBLE);//顯示上下樓鍵
             }
             else if(get_floor1<get_floor2)
             {
                 tv_degree.setText("請往上到"+get_floor2+"樓"+"\n"+"然後按下「已上下樓」按鈕");
+                if (hasbeen_spoke == false){
+                    String text = tv_degree.getText().toString();
+                    mTTS.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                    hasbeen_spoke = true;
+                }
                 start_again_btn.setVisibility(View.VISIBLE);//顯示上下樓鍵
             }
         }

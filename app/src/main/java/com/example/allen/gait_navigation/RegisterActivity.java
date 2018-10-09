@@ -48,7 +48,6 @@ public class RegisterActivity extends AppCompatActivity {
     ArrayList<Float> user_get_x = new ArrayList<Float>(), user_get_y = new ArrayList<Float>(), user_get_direction = new ArrayList<Float>();
     private DatabaseReference mDatabase;
     String uid;
-//    String mcurrent_user_id = mAuth.getCurrentUser().getUid();
 
     private ProgressBar mProgressbar_cycle;
 
@@ -107,18 +106,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        DatabaseReference myRef2 = database.getReference("Map").child("Location");// 為了把主要地圖丟到每個使用者底下  <--  database_btn 做前面的事
-        myRef2.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot2) {
-                for (DataSnapshot ds2:dataSnapshot2.getChildren())
-                    user_get_place.add(ds2.getValue().toString());
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
     }
 
     private void register_user(final String display_name, String email, String password) {
@@ -135,29 +123,14 @@ public class RegisterActivity extends AppCompatActivity {
                     mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
                     HashMap<String, String> userMap = new HashMap<>();
                     userMap.put("name", display_name);
-                    userMap.put("status", "Hi there I'm using XXX App.");
+                    userMap.put("status", "Hi，我正在使用鼴鼠導遊APP");
                     userMap.put("image", "default");
                     userMap.put("thumb_image", "default");
                     userMap.put("user_map", "");
+                    userMap.put("height","170");
 
                     Resetlocation();
                     ResetDatabase();
-//                    database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").removeValue();//清空地圖
-//                    for (int i=0;i<user_get_name.size();i++){
-//                        DatabaseReference myRef_Name = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("name");
-//                        DatabaseReference myRef_X = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("X");
-//                        DatabaseReference myRef_Y = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("Y");
-//                        DatabaseReference mydir = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("direction");
-//                        DatabaseReference myturn = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("turn");
-//                        DatabaseReference mylike = database.getReference("Users").child(uid).child("user_map").child("工程五館").child("2").child(String.valueOf(i)).child("like");
-//
-//                        myRef_Name.setValue(user_get_name.get(i));
-//                        myRef_X.setValue(String.valueOf(user_get_x.get(i)));
-//                        myRef_Y.setValue(String.valueOf(user_get_y.get(i)));
-//                        mydir.setValue(String.valueOf(user_get_direction.get(i)));
-//                        myturn.setValue(user_get_turn.get(i));
-//                        mylike.setValue(user_get_like.get(i));
-//                    }
 
                     //mDatabase.setValue(userMap);//設定完成 啟動 (這行跟下面這段差別在判斷是否完成，和可命令完成後要做甚麼)
                     mDatabase.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -233,12 +206,25 @@ public class RegisterActivity extends AppCompatActivity {
 //        Toast.makeText(RegisterActivity.this,user_get_place.get(0)+user_get_place.get(1),Toast.LENGTH_SHORT).show();
 
         //FirebaseUser current_user = FirebaseAuth.getInstance().getCurrentUser();
-       //String uid = current_user.getUid();
+        //String uid = current_user.getUid();
 
-        database.getReference("Users").child(uid).child("user_map").child("Location").removeValue();//清空地圖
-        for (int i=0;i<user_get_place.size();i++){
-            DatabaseReference myRef_Name = database.getReference("Users").child(uid).child("user_map").child("Location").child(String.valueOf(i));
-            myRef_Name.setValue(user_get_place.get(i));
-        }
+//        database.getReference("Users").child(uid).child("user_map").child("Location").removeValue();//清空地圖
+        DatabaseReference myRef2 = database.getReference("Map").child("Location");// 為了把主要地圖丟到每個使用者底下  <--  database_btn 做前面的事
+        myRef2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot2) {
+                for (DataSnapshot ds2:dataSnapshot2.getChildren())
+                    user_get_place.add(ds2.getValue().toString());
+                for (int i=0;i<user_get_place.size();i++){
+                    DatabaseReference myRef_Name = database.getReference("Users").child(uid).child("user_map").child("Location").child(String.valueOf(i));
+                    myRef_Name.setValue(user_get_place.get(i));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }
