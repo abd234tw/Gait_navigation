@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 //AIzaSyCpnpX1TPJR8TvcG3mBCwRi1nbWZbXLNUo 金鑰
@@ -165,10 +165,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .setPositiveButton("確定", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Uri gmmIntentUri = Uri.parse("google.navigation:q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);
+
+
+                                    /*Uri gmmIntentUri = Uri.parse("google.navigation:q=" + marker.getPosition().latitude + "," + marker.getPosition().longitude);
                                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                                     mapIntent.setPackage("com.google.android.apps.maps");
-                                    startActivity(mapIntent);
+                                    startActivity(mapIntent);*/
                                 }
                             }).show();
                     return false;

@@ -1846,7 +1846,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         {
                             if (min_dis_up>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))
                             {
-                                min_dis_up=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y_2.get(x)), 2.0));
+                                min_dis_up=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));
                                 min_up=i;
                             }
                         }
@@ -1906,8 +1906,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         dir2[x][min_right] = get_direction_2.get(0) + 90 - 360;
                         dir2[min_right][x] = get_direction_2.get(0) - 90;
                     } else if (get_direction_2.get(0) < -90) {
-                        dir[x][min_right] = get_direction_2.get(0) + 90;
-                        dir[min_right][x] = get_direction_2.get(0) - 90 + 360;
+                        dir2[x][min_right] = get_direction_2.get(0) + 90;
+                        dir2[min_right][x] = get_direction_2.get(0) - 90 + 360;
                     }
                     else
                     {
