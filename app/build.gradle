@@ -38,6 +38,7 @@ dependencies {
     //---------map
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.android.volley:volley:1.1.0'//加這行json用
     //List iTem Library
     implementation 'com.lucasurbas:listitemview:1.1.1'
 }
