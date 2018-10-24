@@ -127,7 +127,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
                     public void onClick(DialogInterface paramAnonymousDialogInterface,
                                         int paramAnonymousInt) {
                         meter = String.valueOf(Step_length_edit.getText());
-                        meter = String.valueOf(Double.valueOf(meter)*0.45);//身高*0.45
+                        meter = String.valueOf(Double.valueOf(meter)*0.45/100);//身高*0.45
                         getPlace = et_place.getText().toString();//得到地點
                         getFloor = getFloor_reg;
 
