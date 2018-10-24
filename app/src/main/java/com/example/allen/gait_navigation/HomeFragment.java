@@ -34,7 +34,7 @@ public class HomeFragment extends Fragment {
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     ArrayList<String>user_get_place=new ArrayList<>();
-    ArrayList<String> user_get_name = new ArrayList<String>();
+    ArrayList<String> user_get_name = new ArrayList<String>(),user_get_message = new ArrayList<>();
     ArrayList<Integer> user_get_turn = new ArrayList<Integer>(), user_get_like = new ArrayList<>();
     ArrayList<Float> user_get_x = new ArrayList<Float>(), user_get_y = new ArrayList<Float>(), user_get_direction = new ArrayList<Float>();
     String mcurrent_user_id = mAuth.getCurrentUser().getUid();
@@ -177,18 +177,22 @@ public class HomeFragment extends Fragment {
                             user_get_turn.add(Integer.valueOf(dataSnapshot.child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("turn").getValue().toString()));
                             user_get_name.add(dataSnapshot.child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("name").getValue().toString());
                             user_get_like.add(Integer.valueOf(dataSnapshot.child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("like").getValue().toString()));
+                            user_get_message.add(dataSnapshot.child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("message").getValue().toString());
                             DatabaseReference myRef_Name = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("name");
                             DatabaseReference myRef_X = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("X");
                             DatabaseReference myRef_Y = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("Y");
                             DatabaseReference mydir = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("direction");
                             DatabaseReference myturn = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("turn");
                             DatabaseReference mylike = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("like");
+                            DatabaseReference myRef_message = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(user_get_place.get(j)).child(String.valueOf(k+1)).child(String.valueOf(i)).child("message");
+
                             myRef_Name.setValue(user_get_name.get(i));
                             myRef_X.setValue(String.valueOf(user_get_x.get(i)));
                             myRef_Y.setValue(String.valueOf(user_get_y.get(i)));
                             mydir.setValue(String.valueOf(user_get_direction.get(i)));
                             myturn.setValue(user_get_turn.get(i));
                             mylike.setValue(user_get_like.get(i));
+                            myRef_message.setValue(user_get_message.get(i));
                         }
                         user_get_name.clear();
                         user_get_x.clear();
@@ -196,6 +200,7 @@ public class HomeFragment extends Fragment {
                         user_get_direction.clear();
                         user_get_turn.clear();
                         user_get_like.clear();
+                        user_get_message.clear();
                     }
                 }
             }

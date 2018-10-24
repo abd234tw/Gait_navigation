@@ -593,6 +593,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         DatabaseReference mydir = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("direction");
         DatabaseReference myturn = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("turn");
         DatabaseReference mylike = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("like");
+        DatabaseReference mymessage = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("message");
 
         myRef_Name.setValue(getName);
         myRef_X.setValue(get_X);
@@ -600,6 +601,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         mydir.setValue(dir);
         myturn.setValue(turn);
         mylike.setValue(0);
+        mymessage.setValue("");
 
         DatabaseReference myplace = database.getReference("Map").child("Location").child(String.valueOf(place_count));
         myplace.setValue(getPlace);
