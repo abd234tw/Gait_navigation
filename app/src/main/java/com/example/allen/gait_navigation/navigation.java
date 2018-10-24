@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -22,6 +23,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -2074,6 +2076,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl.draw_path_c(path_c);
             bDrawl.draw_name(get_name);
             bDrawl.draw_dir(dir);
+
           //  bDrawl.draw_stepdis(Float.valueOf(String.valueOf(stepDistance)));
            // bDrawl.draw_step_c(stepCount);
          //   bDrawl.draw_step_cb(getStepCount_before);
@@ -2088,6 +2091,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 newbtn.setY(50);
                 layout.addView(newbtn,100,100);
             }*/
+
             layout.addView(bDrawl);
 
 

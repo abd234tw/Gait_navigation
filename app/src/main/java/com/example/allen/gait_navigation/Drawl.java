@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -15,7 +17,9 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Currency;
 
-public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
+import static android.media.session.PlaybackState.STATE_NONE;
+
+public class Drawl extends SurfaceView implements SurfaceHolder.Callback/*,View.OnTouchListener*/{
     private Paint paint,paint2,paint3,paint4,paint5,paint6,paint7;//聲明畫筆
      float init_x=-200,init_y=-200;
      float width,height;
@@ -34,8 +38,34 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     private RefreshThread renderThread;
     private boolean isDraw = false;// 控制绘制的开关
     float stepdis,currentX,currentY;
-    int stepcount,index,stepcountb
-            ;
+    int stepcount,index,stepcountb;
+    Canvas canvas;
+    //---------------------新加的
+    //初始狀態的Matrix
+    private Matrix mMatrix = new Matrix();
+    //進行變動狀況下的Matrix
+    private Matrix mChangeMatrix = new Matrix();
+    //手機畫面尺寸資訊
+    private DisplayMetrics mDisplayMetrics;
+    //第一點按下的座標
+    private PointF mFirstPointF = new PointF();
+    //第二點按下的座標
+    private PointF mSecondPointF = new PointF();
+    //當下的狀態
+    private int mState = STATE_NONE;
+    //圖片狀態 - 初始狀態
+    private  static final int STATE_NONE = 0;
+    //圖片狀態 - 拖動狀態
+    private static final int STATE_DRAG = 1;
+    //圖片狀態 - 縮放狀態
+    private static final int STATE_ZOOM = 2;
+    //兩點距離
+    private float mDistance = 1f;
+    //設定縮放最小比例
+    private float mMinScale = 0.8f;
+    //設定縮放最大比例
+    private float mMaxScale = 1.5f;
+    //----------------------
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
         isDraw = true;
@@ -127,6 +157,103 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
     public void draw_step_cb(int dscb){stepcountb=dscb;}
     public void draw_dir(float ddir[][]){dir=ddir;}
 
+    /*////--------------------------------------------
+    //兩點距離
+    private float Spacing(MotionEvent event)
+    {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return Float.valueOf(String.valueOf( Math.sqrt(x * x + y * y)));
+    }
+
+    //兩點中心
+    private void MidPoint(PointF point, MotionEvent event)
+    {
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
+    }
+
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event) {
+
+        switch(event.getAction() & MotionEvent.ACTION_MASK) {
+            //第一點按下進入
+            case MotionEvent.ACTION_DOWN:
+                mChangeMatrix.set(mMatrix);
+                mFirstPointF.set(event.getX(), event.getY());
+                mState = STATE_DRAG;
+                break;
+
+            //第二點按下進入
+            case MotionEvent.ACTION_POINTER_DOWN:
+                mDistance = Spacing(event);
+                //只要兩點距離大於10就判定為多點觸碰
+                if (Spacing(event) > 10f) {
+                    mChangeMatrix.set(mMatrix);
+                    MidPoint(mSecondPointF, event);
+                    mState = STATE_ZOOM;
+                }
+                break;
+
+            //離開觸碰
+            case MotionEvent.ACTION_UP:
+                break;
+
+            //離開觸碰，狀態恢復
+            case MotionEvent.ACTION_POINTER_UP:
+                mState = STATE_NONE;
+                break;
+
+            //滑動過程進入
+            case MotionEvent.ACTION_MOVE:
+                if (mState == STATE_DRAG) {
+                    mMatrix.set(mChangeMatrix);
+                    mMatrix.postTranslate(event.getX() - mFirstPointF.x, event.getY() - mFirstPointF.y);
+                } else if (mState == STATE_ZOOM) {
+                    float NewDistance = Spacing(event);
+                    if (NewDistance > 10f) {
+                        mMatrix.set(mChangeMatrix);
+                        float NewScale = NewDistance / mDistance;
+                        mMatrix.postScale(NewScale, NewScale, mSecondPointF.x, mSecondPointF.y);
+                    }
+                }
+                break;
+            }
+
+            canvas.setMatrix(mMatrix);
+        //縮放設定
+        Scale();
+
+        return true;
+    }
+
+    //圖片縮放層級設定
+    private void Scale()
+    {
+        //取得圖片縮放的層級
+        float level[] = new float[9];
+        mMatrix.getValues(level);
+
+        //狀態為縮放時進入
+        if (mState == STATE_ZOOM)
+        {
+            //若層級小於1則縮放至原始大小
+            if (level[0] < mMinScale)
+            {
+                canvas.scale(mMinScale, mMinScale);
+            }
+
+            //若縮放層級大於最大層級則顯示最大層級
+            if (level[0] > mMaxScale)  mMatrix.set(mChangeMatrix);
+        }
+    }
+    *///-----------------------------------------
+
+
+
+
     class RefreshThread extends Thread {
         private SurfaceHolder holder;
         public RefreshThread(SurfaceHolder holder) {
@@ -137,10 +264,9 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
         public void onDraw() {
             try {
                 synchronized (holder) {
-                    Canvas canvas = holder.lockCanvas();
+                    canvas = holder.lockCanvas();
                     // TODO: consider storing these as member variables to reduce
-
-
+                    canvas.scale(0.8f,0.8f);
                    /*if ((x.get(path[index])<x.get(path[index+1])))   //下一點比較大 往大的走用加的
                         currentX=canvas.getWidth()+init+x.get(path[index])*length;//+(stepcount-stepcountb )*stepdis*length;
                     else if(x.get(path[index])>x.get(path[index+1]))  //下一點比較小 往小的走用減的
@@ -262,8 +388,6 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
                     }while(c<turn.size()-1);
 
 
-
-
                     width=canvas.getWidth()+init_x+x.get(path[0])*length;
                     height=canvas.getHeight()+init_y-y.get(path[0])*length;
 
@@ -300,7 +424,6 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
                     canvas.drawCircle(currentX, currentY, pen*2, paint7);
 
 
-
                     holder.unlockCanvasAndPost(canvas);//结束锁定画图，并提交改变。
                     Thread.sleep(1000);//睡眠时间为1秒
 
@@ -321,69 +444,6 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
     }
-
-
-    //畫圖
-   /* @Override
-    protected void onDraw(Canvas canvas ) {
-        super.onDraw(canvas);
-            width=canvas.getWidth()+init;
-            height=canvas.getHeight()+init;
-            int branch_c=branch.size();
-            c=0;
-            do                              //畫地圖
-            {
-                if (turn.get(c)==0||turn.get(c)>=2||turn.get(c)==-2)
-                {
-                    d_x=(x.get(c+1)-x.get(c))*length;
-                    d_y=(y.get(c+1)-y.get(c))*length;
-                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                    width=width+d_x;
-                    height=height-d_y;
-                }
-                else
-                {
-                    width=canvas.getWidth()+init+x.get(branch.get(branch_c-1))*length;
-                    height=canvas.getHeight()+init-y.get(branch.get(branch_c-1))*length;
-                    d_x=(x.get(c+1)-x.get(branch.get(branch_c-1)))*length;
-                    d_y=(y.get(c+1)-y.get(branch.get(branch_c-1)))*length;
-                    canvas.drawLine(width,height,width+d_x,height-d_y,paint);
-                    branch_c--;
-                }
-                c++;
-                if (c==x.size()-1)
-                    c++;
-            }while(c<x.size());
-
-
-            width=canvas.getWidth()+init+x.get(path[0])*length;
-            height=canvas.getHeight()+init-y.get(path[0])*length;
-
-            for (int i=1;i<path_c;i++) {
-                d_x = (x.get(path[i]) - x.get(path[i - 1])) * length;
-                d_y = (y.get(path[i]) - y.get(path[i - 1])) * length;
-                if (i == 1) {
-                    canvas.drawCircle(width, height, pen * 3, paint3);//起點
-                    canvas.drawText(name.get(path[i - 1]), width, height, paint4);
-                    canvas.drawCircle(width + d_x, height - d_y, pen * 2, paint5);//其他點
-                    canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint6);
-                } else if (i == path_c - 1) {
-                    canvas.drawCircle(width + d_x, height - d_y, pen * 3, paint3);//終點
-                    canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint4);
-                } else {
-                    canvas.drawCircle(width + d_x, height - d_y, pen * 2, paint5);//其他點
-                    canvas.drawText(name.get(path[i]), width + d_x, height - d_y, paint6);
-                }
-                canvas.drawLine(width, height, width + d_x, height - d_y, paint2);//路徑
-                width = width + d_x;
-                height = height - d_y;
-
-            }
-
-    }*/
-
-
-
 
 }
 
