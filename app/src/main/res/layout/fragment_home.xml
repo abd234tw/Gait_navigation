@@ -6,7 +6,7 @@
 
     <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="476dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="35dp"
         android:layout_weight="8"
         android:alignmentMode="alignMargins"
@@ -181,7 +181,7 @@
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="20dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_navigation_black_24dp" />
+                    android:src="@drawable/outdoor" />
 
                 <View
                     android:layout_width="2dp"
@@ -204,30 +204,30 @@
     </GridLayout>
 
     <!--<Button-->
-        <!--android:id="@+id/getdata_btn"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_marginBottom="16dp"-->
-        <!--android:layout_marginStart="29dp"-->
-        <!--android:text="新增地圖" />-->
+    <!--android:id="@+id/getdata_btn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:layout_alignParentStart="true"-->
+    <!--android:layout_marginBottom="16dp"-->
+    <!--android:layout_marginStart="29dp"-->
+    <!--android:text="新增地圖" />-->
 
     <!--<Button-->
-        <!--android:id="@+id/navigation_btn"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignTop="@+id/getdata_btn"-->
-        <!--android:layout_marginEnd="34dp"-->
-        <!--android:text="導航" />-->
+    <!--android:id="@+id/navigation_btn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentEnd="true"-->
+    <!--android:layout_alignTop="@+id/getdata_btn"-->
+    <!--android:layout_marginEnd="34dp"-->
+    <!--android:text="導航" />-->
 
     <!--<Button-->
-        <!--android:id="@+id/reset_btn"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignTop="@+id/getdata_btn"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:text="地圖重建" />-->
+    <!--android:id="@+id/reset_btn"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignTop="@+id/getdata_btn"-->
+    <!--android:layout_centerHorizontal="true"-->
+    <!--android:text="地圖重建" />-->
 
 </RelativeLayout>

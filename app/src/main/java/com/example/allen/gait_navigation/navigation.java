@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,7 +22,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -65,7 +63,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
     //****************Compass*******************
     Button scan_btn,start_nav_btn,voice_btn,checkin_btn,Choice_place1_btn,Choice_place2_btn
-            ,Choice_start_btn,Choice_end_btn,Choice_floor1_btn,Choice_floor2_btn,start_again_btn;
+            ,Choice_start_btn,Choice_end_btn,Choice_floor1_btn,Choice_floor2_btn,start_again_btn,
+            ad_msg_btn;
     TextView tv_degree,test,results;
     ImageView img_arrow;
     //    EditText name_edit;
@@ -80,6 +79,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     //****************變數*********************
     ArrayList<String> get_start_floor=new ArrayList<>(),get_name=new ArrayList<String>(),user_get_name=new ArrayList<String>();
     ArrayList<String> get_end_floor=new ArrayList<>(),get_name_2=new ArrayList<String>(),user_get_name_2=new ArrayList<String>();
+    ArrayList<String> get_message=new ArrayList<>();
     ArrayList<Integer> get_turn=new ArrayList<>(),user_get_turn=new ArrayList<>(),get_like = new ArrayList<>(),get_like2 = new ArrayList<>();
     ArrayList<Integer> get_turn_2=new ArrayList<>(),user_get_turn_2=new ArrayList<>();
     ArrayList<Float> get_x=new ArrayList<Float>(),get_y=new ArrayList<Float>(),get_direction=new ArrayList<Float>(),
@@ -124,6 +124,9 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
     boolean start_btn_bool = false;
 
+    String ad_message;//廣告推播
+    Boolean ad_time=true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -153,6 +156,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         Choice_floor2_btn = findViewById(R.id.Choice_floor2_btn);
         Choice_start_btn = findViewById(R.id.Choice_start_btn);//選擇起點
         Choice_end_btn = findViewById(R.id.Choice_end_btn);//選擇目的地
+        ad_msg_btn = findViewById(R.id.ad_msg_btn);//廣告推播
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
@@ -163,6 +167,18 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         sensorManager.registerListener(this, magneticSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this, stepDetector, SensorManager.SENSOR_DELAY_GAME);
+
+        DatabaseReference myRef_height = database.getReference("Users").child(mcurrent_user_id).child("height");  //從使用者抓下來的地圖資訊
+        myRef_height.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                stepDistance = Double.parseDouble(dataSnapshot.getValue().toString())*0.45/100;
+                Toast.makeText(navigation.this,dataSnapshot.getValue().toString(),Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
 
         //語音導航
         mTTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -180,6 +196,13 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 } else {
                     Log.e("TTS", "Initialization failed");
                 }
+            }
+        });
+
+        ad_msg_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(navigation.this,ad_message,Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -576,7 +599,13 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         //************************按鈕***************************
         final Handler handler = new Handler() {
             @Override
-            public void handleMessage(Message msg) { layout();   //輸出座標
+            public void handleMessage(Message msg) {
+                layout();   //輸出座標
+                if (ad_time == true){
+                    Ad_message(path[index]);
+                    ad_time = false;
+                }
+
             }
         };
         start_again_btn.setOnClickListener(new Button.OnClickListener() {
@@ -714,7 +743,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
 
 
                                             if ((user_get_x_2.get(path2[index2])<user_get_x_2.get(path2[index2+1])))   //下一點比較大 往大的走用加的
-                                                    user_get_x_2.add(path2[index2+insert_c]+checkin_c2,  user_get_x_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
+                                                user_get_x_2.add(path2[index2+insert_c]+checkin_c2,  user_get_x_2.get(path2[index2])+ Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             else if(user_get_x_2.get(path2[index2])>user_get_x_2.get(path2[index2+1]))  //下一點比較小 往小的走用減的
                                                 user_get_x_2.add(path2[index2+insert_c]+checkin_c2,  user_get_x_2.get(path2[index2])- Float.valueOf(String.valueOf((stepCount-getStepCount_before)*stepDistance)));
                                             else   //等於零 表示同一個X
@@ -751,7 +780,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         //*********************導航*******************************
         start_nav_btn.setOnClickListener(new Button.OnClickListener() {     //導航
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
 
                 if (floor1_adapter==null||floor2_adapter==null||list_end_adapter==null||list_start_adapter==null){
                     Toast.makeText(navigation.this,"請先選擇起點和目的地",Toast.LENGTH_SHORT).show();
@@ -846,13 +875,15 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                             hasbeen_spoke = true;
                                         }
 
-                                        if (distance - Walking_distance > 2) {
+                                        if (distance - Walking_distance > 1) {
                                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                         } else {
                                             index++;
                                             getStepCount_before = stepCount;
                                             Walking_distance = 0;
                                             hasbeen_spoke = false;
+                                            ad_time = true;
+                                            ad_msg_btn.setVisibility(View.GONE);
                                         }
 
                                     }
@@ -945,7 +976,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                                 hasbeen_spoke = true;
                                             }
 
-                                            if (distance - Walking_distance > 2) {
+                                            if (distance - Walking_distance > 1) {
                                                 Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                             } else {
                                                 index++;
@@ -1001,7 +1032,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                                             hasbeen_spoke = true;
                                         }
 
-                                        if (distance - Walking_distance > 2) {
+                                        if (distance - Walking_distance > 1) {
                                             Walking_distance = (stepCount - getStepCount_before) * stepDistance;
                                         } else {
                                             index2++;
@@ -1139,6 +1170,17 @@ public class navigation extends AppCompatActivity implements SensorEventListener
         super.onDestroy();
     }
 
+    private void Ad_message(int index){
+        ad_message = get_message.get(index);
+        if (ad_message.isEmpty()){
+            ad_msg_btn.setVisibility(View.GONE);
+        }else {
+            ad_msg_btn.setVisibility(View.VISIBLE);
+            Toast.makeText(navigation.this,ad_message,Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     //實際距離、行走距離、步數、前步數
     private void layout() {
         //test.setText("步數: "+String.valueOf(getStepCount_before) +" "+String.valueOf(stepCount)+"剩餘距離: "+String.format("%.2f",distance)+" 已走距離: "+String.format("%.2f",Walking_distance));
@@ -1248,6 +1290,10 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         get_turn.add(Integer.valueOf(String.valueOf(ds.child("turn").getValue())));
                         get_name.add(String.valueOf(ds.child("name").getValue()));
                         get_like.add(Integer.valueOf(String.valueOf(ds.child("like").getValue())));
+//                        if (ds.hasChild("message")){
+//                            get_message.add(String.valueOf(ds.child("message").getValue()));
+//                        }
+                        get_message.add(String.valueOf(ds.child("message").getValue()));
                         //所以新增的打卡點存在下面
                         user_get_x.add(Float.valueOf(String.valueOf(ds.child("X").getValue())));
                         user_get_y.add(Float.valueOf(String.valueOf(ds.child("Y").getValue())));
@@ -1572,40 +1618,40 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 {
                     if (Math.round(get_x.get(x))==Math.round(get_x.get(i)))//同一個X
                     {
-                            if (get_y.get(x)<get_y.get(i))//上面
+                        if (get_y.get(x)<get_y.get(i))//上面
+                        {
+                            if (min_dis_up>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))
                             {
-                                if (min_dis_up>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))
-                                {
-                                    min_dis_up=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
-                                    min_up=i;
-                                }
+                                min_dis_up=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                                min_up=i;
                             }
-                            else//下面
+                        }
+                        else//下面
+                        {
+                            if (min_dis_down>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))
                             {
-                                if (min_dis_down>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))
-                                {
-                                    min_dis_down=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
-                                    min_down=i;
-                                }
+                                min_dis_down=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                                min_down=i;
                             }
+                        }
                     }else if(Math.round(get_y.get(x))==Math.round(get_y.get(i)))//同Y
                     {
-                            if (get_x.get(x)<get_x.get(i))//  下一點在右邊
+                        if (get_x.get(x)<get_x.get(i))//  下一點在右邊
+                        {
+                            if (min_dis_right>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
                             {
-                                if (min_dis_right>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
-                                {
-                                    min_dis_right=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
-                                    min_right=i;
-                                }
+                                min_dis_right=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                                min_right=i;
                             }
-                            else //左邊
+                        }
+                        else //左邊
+                        {
+                            if (min_dis_left>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
                             {
-                                if (min_dis_left>Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0)))//找最接近這點的座標 建關係 (通常是第一個)
-                                {
-                                    min_dis_left=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
-                                    min_left=i;
-                                }
+                                min_dis_left=Math.sqrt(Math.pow((get_x.get(i) - get_x.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y.get(x)), 2.0));
+                                min_left=i;
                             }
+                        }
                     }
                 }
                 //-------up----
@@ -1848,7 +1894,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         {
                             if (min_dis_up>Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0)))
                             {
-                                min_dis_up=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y_2.get(i) - get_y_2.get(x)), 2.0));
+                                min_dis_up=Math.sqrt(Math.pow((get_x_2.get(i) - get_x_2.get(x)), 2.0) +Math.pow((get_y.get(i) - get_y_2.get(x)), 2.0));
                                 min_up=i;
                             }
                         }
@@ -1908,8 +1954,8 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                         dir2[x][min_right] = get_direction_2.get(0) + 90 - 360;
                         dir2[min_right][x] = get_direction_2.get(0) - 90;
                     } else if (get_direction_2.get(0) < -90) {
-                        dir2[x][min_right] = get_direction_2.get(0) + 90;
-                        dir2[min_right][x] = get_direction_2.get(0) - 90 + 360;
+                        dir[x][min_right] = get_direction_2.get(0) + 90;
+                        dir[min_right][x] = get_direction_2.get(0) - 90 + 360;
                     }
                     else
                     {
@@ -2076,11 +2122,10 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             bDrawl.draw_path_c(path_c);
             bDrawl.draw_name(get_name);
             bDrawl.draw_dir(dir);
-
-          //  bDrawl.draw_stepdis(Float.valueOf(String.valueOf(stepDistance)));
-           // bDrawl.draw_step_c(stepCount);
-         //   bDrawl.draw_step_cb(getStepCount_before);
-          //  bDrawl.draw_index(index);
+            //  bDrawl.draw_stepdis(Float.valueOf(String.valueOf(stepDistance)));
+            // bDrawl.draw_step_c(stepCount);
+            //   bDrawl.draw_step_cb(getStepCount_before);
+            //  bDrawl.draw_index(index);
 
            /* for (int i=0;i<3;i++)
             {
@@ -2091,21 +2136,20 @@ public class navigation extends AppCompatActivity implements SensorEventListener
                 newbtn.setY(50);
                 layout.addView(newbtn,100,100);
             }*/
-
             layout.addView(bDrawl);
 
 
         }
     }
 
-   public  void GetStepCount()
-   {
-       for (int i=0;i<path_c;i++)
-       {
-           if (i!=path_c-1)
-           totalstep=totalstep+dist[path[i]][path[i+1]]/stepDistance;
-       }
-   }
+    public  void GetStepCount()
+    {
+        for (int i=0;i<path_c;i++)
+        {
+            if (i!=path_c-1)
+                totalstep=totalstep+dist[path[i]][path[i+1]]/stepDistance;
+        }
+    }
 
     //QRcode 返回  & arrive返回
     @Override
