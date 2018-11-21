@@ -98,6 +98,7 @@ public class arrive extends AppCompatActivity {
                 DatabaseReference mydir = database.getReference("Users").child(ID).child("user_map").child(place).child(String.valueOf(floor)).child(String.valueOf(i)).child("direction");
                 DatabaseReference myturn = database.getReference("Users").child(ID).child("user_map").child(place).child(String.valueOf(floor)).child(String.valueOf(i)).child("turn");
                 DatabaseReference mylike = database.getReference("Users").child(ID).child("user_map").child(place).child(String.valueOf(floor)).child(String.valueOf(i)).child("like");
+                DatabaseReference myRef_message = database.getReference("Users").child(ID).child("user_map").child(place).child(String.valueOf(floor)).child(String.valueOf(i)).child("message");
 
                 myRef_Name.setValue(user_name.get(i));
                 myRef_X.setValue(String.valueOf(user_x[i]));
@@ -105,6 +106,7 @@ public class arrive extends AppCompatActivity {
                 mydir.setValue(String.valueOf(user_direction[i]));
                 myturn.setValue(user_turn.get(i));
                 mylike.setValue(user_like.get(i));
+                myRef_message.setValue("");
 
             }
 
@@ -120,6 +122,7 @@ public class arrive extends AppCompatActivity {
                 DatabaseReference mydir2 = database.getReference("Users").child(ID).child("user_map").child(place2).child(String.valueOf(floor2)).child(String.valueOf(i)).child("direction");
                 DatabaseReference myturn2 = database.getReference("Users").child(ID).child("user_map").child(place2).child(String.valueOf(floor2)).child(String.valueOf(i)).child("turn");
                 DatabaseReference mylike2 = database.getReference("Users").child(ID).child("user_map").child(place2).child(String.valueOf(floor2)).child(String.valueOf(i)).child("like");
+                DatabaseReference myRef_message2 = database.getReference("Users").child(ID).child("user_map").child(place2).child(String.valueOf(floor2)).child(String.valueOf(i)).child("message");
 
                 myRef_Name2.setValue(user_name2.get(i));
                 myRef_X2.setValue(String.valueOf(user_x2[i]));
@@ -127,6 +130,7 @@ public class arrive extends AppCompatActivity {
                 mydir2.setValue(String.valueOf(user_direction2[i]));
                 myturn2.setValue(user_turn2.get(i));
                 mylike2.setValue(user_like2.get(i));
+                myRef_message2.setValue("");
             }
             Toast.makeText(arrive.this,"已新增"+floor2+"樓打卡點",Toast.LENGTH_SHORT).show();
         }
@@ -138,7 +142,6 @@ public class arrive extends AppCompatActivity {
                 Intent intent=new Intent(arrive.this,navigation.class);
                 setResult(RESULT_OK, intent);
                 arrive.this.finish();
-
 
             }
         });

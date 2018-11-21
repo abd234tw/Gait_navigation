@@ -162,7 +162,7 @@
         android:layout_alignBottom="@+id/img_arrow"
         android:layout_alignParentStart="true"
         android:layout_marginStart="13dp"
-        android:text="test" />
+        android:text="" />
 
     <LinearLayout
         android:id="@+id/d_map"

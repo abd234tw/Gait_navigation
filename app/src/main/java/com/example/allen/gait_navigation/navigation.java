@@ -1855,13 +1855,13 @@ public class navigation extends AppCompatActivity implements SensorEventListener
             path[path_c]=bp_end;
             path_c++;
         }
-        //------------------------看數值可註解
+        /*------------------------看數值可註解
         for (int i=0;i<path_c;i++)
         {
             if(path[i]!=-1)
                 results.setText(results.getText()+String.valueOf(path[i])+" ");
         }
-        results.setText(results.getText()+"\n");
+        results.setText(results.getText()+"\n");*/
     }
 
     private void best_path_floor(){

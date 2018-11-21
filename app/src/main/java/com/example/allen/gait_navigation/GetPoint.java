@@ -529,7 +529,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
                 direction -= 360;
 
             //座標 給定象限
-            if ((direction >= 0 && direction < 22.5) || (direction >= 337.5)) {
+            /*if ((direction >= 0 && direction < 22.5) || (direction >= 337.5)) {
                 p_x = 0;
                 p_y = 1;
             } else if (direction >= 22.5 && direction < 67.5) {
@@ -553,7 +553,24 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
             } else if (direction >= 292.5 && direction < 337.5) {
                 p_x = 1;
                 p_y = 1;
+            }*/
+
+            if ((direction >= 0 && direction < 45) || (direction >= 315)) {
+                p_x = 0;
+                p_y = 1;
+            } else if (direction >= 45 && direction < 135) {
+                p_x = -1;
+                p_y = 0;
+            }else if (direction >= 135 && direction < 225) {
+                p_x = 0;
+                p_y = -1;
+            }  else if (direction >= 225 && direction < 315) {
+                p_x = 1;
+                p_y = 0;
             }
+
+
+
 
             //直走 左轉 右轉(正方向前進)
             if (((direction - first_direction) >= 0 && (direction - first_direction) < 22.5) || ((direction - first_direction) >= 337.5)) {

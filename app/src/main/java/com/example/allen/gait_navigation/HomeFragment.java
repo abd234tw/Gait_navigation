@@ -138,7 +138,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void Reset(){
-        CharSequence options[] = new CharSequence[]{"確定", "取消"};
+        /*CharSequence options[] = new CharSequence[]{"確定", "取消"};
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("重置地圖");
         builder.setItems(options, new DialogInterface.OnClickListener() {
@@ -156,10 +156,12 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        builder.show();
+        builder.show();*/
+        Intent intent = new Intent(getContext(),MapsManager.class);
+        startActivity(intent);
     }
 
-    private void ResetDatabase() {
+    /*private void ResetDatabase() {
 
         DatabaseReference myRef3 = database.getReference("Map");
         myRef3.addValueEventListener(new ValueEventListener() {
@@ -217,6 +219,6 @@ public class HomeFragment extends Fragment {
             DatabaseReference myRef_Name = database.getReference("Users").child(mcurrent_user_id).child("user_map").child("Location").child(String.valueOf(i));
             myRef_Name.setValue(user_get_place.get(i));
         }
-    }
+    }*/
 
 }

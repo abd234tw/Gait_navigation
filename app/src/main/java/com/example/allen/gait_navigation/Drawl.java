@@ -291,6 +291,13 @@ public class Drawl extends SurfaceView implements SurfaceHolder.Callback/*,View.
                             init_y=-100;
                         }
 
+                        if(name.get(i).equals("起點"))
+                        {
+                            init_x=-500;
+                            init_y=-200;
+                            canvas.scale(1.2f,1.2f);
+                        }
+
                     }
 
                     do
