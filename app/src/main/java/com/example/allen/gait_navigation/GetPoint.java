@@ -32,6 +32,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,7 +46,8 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
 
     AlertDialog alertDialog;
     View view;
-
+    private FirebaseAuth mAuth=FirebaseAuth.getInstance();
+    String mcurrent_user_id=mAuth.getCurrentUser().getUid();
     //sensor
     private SensorManager sensorManager;
     private Sensor magneticSensor;
@@ -62,12 +64,6 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     //Firebase 用
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     String getPlace,getFloor_reg,getFloor,getName_reg,getName,get_X,get_Y,dir,meter;
-    //下拉式選單
-    Spinner building_sp,floor_sp;
-    String[] item_name = {"工程一館","工程二館","工程三館","工程四館","工程五館"};
-    String[] item_name2 = {"1","2","3","4","5","6","7","8","9","10"};
-
-    ArrayAdapter<String> spinner_adapter,spinner_adapter2;
     //變數
     long place_count;
     private static final float NS2S = 1.0f / 1000000000.0f;
@@ -83,6 +79,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
     NumberPicker select_floor_numPik;
     LinearLayout layout_is_turn_floor,layout_is_turn_floor2,layout_is_turn_branch,layout_is_turn_end;
     TextView is_turn_floor_tv,is_turn_floor_tv2,is_turn_branch_tv,is_turn_end_tv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -390,11 +387,10 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         accelerometerSensor =sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         gyroscopeSensor =sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         stepDetector=sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        //注?陀螺??感器，并?定?感器向?用中?出的???隔?型是SensorManager.SENSOR_DELAY_GAME(20000微秒)
-        //SensorManager.SENSOR_DELAY_FASTEST(0微秒)：最快。最低延?，一般不是特?敏感的?理不推荐使用，?模式可能在成手机?力大量消耗，由于??的?原始?据，?法不?理好?影?游???和UI的性能
-        //SensorManager.SENSOR_DELAY_GAME(20000微秒)：游?。游?延?，一般?大多?的??性?高的游?都是用???
-        //SensorManager.SENSOR_DELAY_NORMAL(200000微秒):普通。?准延?，?于一般的益智?或EASY??的游?可以使用，但?低的采?率可能?一些???游?有跳??象
-        //SensorManager.SENSOR_DELAY_UI(60000微秒):用?界面。一般?于屏幕方向自?旋?使用，相??省?能和???理，一般游???中不使用
+        //SensorManager.SENSOR_DELAY_FASTEST(0微秒)：最快。
+        //SensorManager.SENSOR_DELAY_GAME(20000微秒)：遊戲。
+        //SensorManager.SENSOR_DELAY_NORMAL(200000微秒):普通。
+        //SensorManager.SENSOR_DELAY_UI(60000微秒):一般。
         sensorManager.registerListener(this,gyroscopeSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this,magneticSensor, SensorManager.SENSOR_DELAY_GAME);
         sensorManager.registerListener(this,accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
@@ -402,7 +398,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
 
 
 
-        DatabaseReference myplace=database.getReference("Map").child("Location");
+        DatabaseReference myplace=database.getReference("Users").child(mcurrent_user_id).child("user_map").child("Location");
         myplace.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -604,13 +600,13 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         dir = String.format("%.0f", position_angle[0]);
         Toast.makeText(GetPoint.this, getPlace+" "+getFloor,Toast.LENGTH_SHORT).show();
 
-        DatabaseReference myRef_Name = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("name");
-        DatabaseReference myRef_X = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("X");
-        DatabaseReference myRef_Y = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("Y");
-        DatabaseReference mydir = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("direction");
-        DatabaseReference myturn = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("turn");
-        DatabaseReference mylike = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("like");
-        DatabaseReference mymessage = database.getReference("Map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("message");
+        DatabaseReference myRef_Name = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("name");
+        DatabaseReference myRef_X =database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("X");
+        DatabaseReference myRef_Y = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("Y");
+        DatabaseReference mydir = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("direction");
+        DatabaseReference myturn = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("turn");
+        DatabaseReference mylike = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("like");
+        DatabaseReference mymessage = database.getReference("Users").child(mcurrent_user_id).child("user_map").child(getPlace).child(getFloor).child(String.valueOf(count_point)).child("message");
 
         myRef_Name.setValue(getName);
         myRef_X.setValue(get_X);
@@ -620,7 +616,7 @@ public class GetPoint extends AppCompatActivity implements SensorEventListener{
         mylike.setValue(0);
         mymessage.setValue("");
 
-        DatabaseReference myplace = database.getReference("Map").child("Location").child(String.valueOf(place_count));
+        DatabaseReference myplace = database.getReference("Users").child(mcurrent_user_id).child("user_map").child("Location").child(String.valueOf(place_count));
         myplace.setValue(getPlace);
         count_point++;
 
