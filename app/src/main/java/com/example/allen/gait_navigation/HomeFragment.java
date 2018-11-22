@@ -78,7 +78,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        DatabaseReference myRef2 = database.getReference("Map").child("Location");// 為了把主要地圖丟到每個使用者底下  <--  database_btn 做前面的事
+        /*DatabaseReference myRef2 = database.getReference("Map").child("Location");// 為了把主要地圖丟到每個使用者底下  <--  database_btn 做前面的事
         myRef2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot2) {
@@ -90,7 +90,7 @@ public class HomeFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
 
         reset_card.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -38,7 +38,8 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
-        <activity android:name=".GetPoint" />
+        <activity android:name=".GetPoint"
+            android:screenOrientation="portrait"  />
         <activity
             android:name=".navigation"
             android:screenOrientation="portrait" />

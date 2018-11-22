@@ -61,6 +61,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     //Firebase
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
+    String mcurrent_user_id=mAuth.getCurrentUser().getUid();
     //****************Compass*******************
     Button scan_btn,start_nav_btn,voice_btn,checkin_btn,Choice_place1_btn,Choice_place2_btn
             ,Choice_start_btn,Choice_end_btn,Choice_floor1_btn,Choice_floor2_btn,start_again_btn,
@@ -103,8 +104,7 @@ public class navigation extends AppCompatActivity implements SensorEventListener
     Spinner spinner_start,spinner_end;
     //*******************************************
 
-    //轉移資料庫用(之後可以刪除)
-    String mcurrent_user_id=mAuth.getCurrentUser().getUid();
+
 
     //語音導航
     private TextToSpeech mTTS;

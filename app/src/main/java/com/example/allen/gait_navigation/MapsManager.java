@@ -1,5 +1,6 @@
 package com.example.allen.gait_navigation;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TabHost;
 import android.widget.Toast;
 
@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.security.AccessController.getContext;
+
 public class MapsManager extends AppCompatActivity {
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth=FirebaseAuth.getInstance();
@@ -33,6 +35,8 @@ public class MapsManager extends AppCompatActivity {
     ArrayList<String> user_get_name = new ArrayList<String>(),user_get_message = new ArrayList<>();
     ArrayList<Integer> user_get_turn = new ArrayList<Integer>(), user_get_like = new ArrayList<>();
     ArrayList<Float> user_get_x = new ArrayList<Float>(), user_get_y = new ArrayList<Float>(), user_get_direction = new ArrayList<Float>();
+
+    ArrayAdapter<String> all_maps,my_maps;
     //選單
     AlertDialog alertDialog;
     boolean isexist=false;
@@ -45,6 +49,8 @@ public class MapsManager extends AppCompatActivity {
         final ListView listView1=findViewById(R.id.listView1);
         final ListView listView2=findViewById(R.id.listView2);
         tabhost.setup();
+        all_maps = new ArrayAdapter(this, android.R.layout.simple_list_item_1, get_all_maps);
+        my_maps = new ArrayAdapter(this, android.R.layout.simple_list_item_1, get_my_maps);
         //----------------------------------------------------------------------------------
         DatabaseReference myRef_all_maps = database.getReference("Map").child("Location");
         myRef_all_maps.addValueEventListener(new ValueEventListener() {
@@ -55,6 +61,8 @@ public class MapsManager extends AppCompatActivity {
                         get_all_maps.add(ds.getValue().toString());
                 }
                 //get_all_maps.add("請選擇以上地點新增");  //解spinner bug
+                listView1.setAdapter(all_maps);
+
             }
 
             @Override
@@ -73,6 +81,7 @@ public class MapsManager extends AppCompatActivity {
                         get_my_maps.add(ds.getValue().toString());
                 }
                 //get_my_maps.add("請選擇以上地點刪除");  //解spinner bug
+                listView2.setAdapter(my_maps);
             }
 
             @Override
@@ -85,10 +94,10 @@ public class MapsManager extends AppCompatActivity {
 
 
         //---------------------------------------------------------------------------
-        final ArrayAdapter all_maps = new ArrayAdapter(this, android.R.layout.simple_list_item_1, get_all_maps);
-        final ArrayAdapter my_maps = new ArrayAdapter(this, android.R.layout.simple_list_item_1, get_my_maps);
 
-        listView1.setAdapter(all_maps);
+
+
+
         listView1.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, final int arg2, long arg3) {
@@ -175,7 +184,7 @@ public class MapsManager extends AppCompatActivity {
         });
 
 
-        listView2.setAdapter(my_maps);
+
         listView2.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, final int arg2, long arg3) {
